@@ -1,0 +1,40 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+  "grammars": [
+    {
+      "name": "soma",
+      "camelcase": "Soma",
+      "title": "Soma",
+      "scope": "source.soma",
+      "file-types": [
+        "soma"
+      ],
+      "injection-regex": "^soma$",
+      "class-name": "TreeSitterSoma"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "Soma grammar for tree-sitter",
+    "authors": [
+      {
+        "name": "Gabriel Minatel",
+        "email": "gabriel@minatel.dev",
+        "url": "https://minatel.dev/"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/SrGaabriel/tree-sitter-soma"
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true,
+    "zig": false
+  }
+}
