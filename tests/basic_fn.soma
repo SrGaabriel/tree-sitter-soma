@@ -1,0 +1,3 @@
+def sum(x: Int, y: Int) -> Int = x + y
+def chooseRight :: a -> a -> a
+    | lhs rhs => rhs

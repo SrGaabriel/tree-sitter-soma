@@ -1,0 +1,163 @@
+// This file combines all syntax elements from core.soma, llvm.soma, app.soma, and test_zero_overhead.soma
+// to create a comprehensive test case for a soma parser.
+use stdlib.{id, Optional, Some}
+// Intrinsic data and defs
+intrinsic data IO :: * -> *
+intrinsic data Ref :: * -> *
+intrinsic def {+} :: Int -> Int -> Int
+intrinsic def {+} :: a -> a -> a
+intrinsic def {-} :: Int -> Int -> Int
+intrinsic def {==} :: a -> a -> Bool
+intrinsic def {==} :: Int -> Int -> Bool
+intrinsic def println :: a -> IO () where a: Display
+intrinsic def map :: (a -> b) -> [a] -> [b]
+intrinsic def for :: (a -> ()) -> [a] -> ()
+intrinsic def debug :: String -> ()
+intrinsic def pureIO :: a -> IO a
+intrinsic def newRef :: a -> Ref a
+intrinsic def readRef :: Ref a -> a
+intrinsic def modifyRef :: Ref a -> a -> Ref a
+// Data declarations
+data Optional
+    = Some
+        value :: Int
+    | Nothing
+data Shape
+    = Square
+        length :: Int
+    | Circle
+        radius :: Int
+data Maybe a
+    = Just
+        value :: a
+    | Nothing
+data Option a
+    = Some
+        value :: a
+    | None
+data Either l r
+    = Left
+        error :: l
+    | Right
+        value :: r
+// Traits
+trait Monad m where
+    def pure :: a -> m a
+trait Display a where
+    def display :: a -> String
+trait Eq a where
+    def equals :: a -> a -> Bool
+// Instances
+instance Monad IO where
+    def pure(value: a) -> IO a = pureIO value
+instance Display String where
+    def display(str: String) -> String = str
+instance Display Int where
+    def display(num: Int) -> String = "<unimplemented>"
+instance Display [a] where
+    def display(lst: [a]) -> String = "<list>"
+instance Display Optional where
+    def display(optional: Optional) -> String = "Optional!"
+instance Display Shape where
+    def display :: Shape -> String
+        | (Circle r1) => display r1
+        | (Square s1) => display s1
+        | _ => "<unknown shape>"
+instance Eq Optional where
+    def equals(x: Optional, y: Optional) -> Bool = true
+instance Eq Int where
+    def equals(x: Int, y: Int) -> Bool = true
+instance Eq Shape where
+    def equals :: Shape -> Shape -> Bool
+        | (Circle r1) (Circle r2) => equals r1 r2
+        | (Square s1) (Square s2) => true
+        | _         _             => false
+// Function definitions
+def summing(x: Int, y: Int) -> Int = x + y
+def id(value) :: x -> x = value
+def pureMaybeInt(value: Int) -> Maybe Int = Just value
+def pureOptionalInt(value: Int) -> Optional = Some value
+def testOptionalEq(x: Optional, y: Optional) -> Bool = equals x y
+def testOptionalEqGen :: Bool =
+    let first = Some 5 in
+    let second = pureOptionalInt 5 in
+    equals first second
+def totallyGenericEqGen(left, right) :: a -> a -> Bool where a: Eq =
+    equals left right
+def testTotallyGenericEqGen(left, right) :: a -> a -> Bool where a: Eq =
+    totallyGenericEqGen left right
+def testTotallyGenericEqGenOptional(left: Optional, right: Optional) -> Bool =
+    totallyGenericEqGen left right
+def isZero :: Int -> Bool
+    | 0 => true
+    | _ => false
+def testSum(x: Int, y: Int) -> Int = x + y
+def areNumEqual(num1: Int, num2: Int) -> Bool = num1 == num2
+def primeNumbers :: [Int] = [2,3,5,7]
+def chooseRight :: a -> a -> a
+    | lhs rhs => rhs
+def testShape :: Shape = Circle 5
+def experimentChooseRight :: a -> b -> b
+    | lhs rhs => rhs
+def testChoose :: a -> b -> b
+    | lhs rhs => experimentChooseRight lhs rhs
+def genericEq :: a -> a -> Bool where a: Eq
+    | x y => equals x y
+def genericEqTest :: a -> a -> Bool where a: Eq
+    | x y => genericEq x y
+// Test functions from test_zero_overhead.soma
+def testStateMem2Reg :: Bool -> Int
+    | flag => compose
+        bind r <- newRef 0
+        bind x <- modifyRef r 1
+        bind v <- readRef r
+        v
+def statefulCompute :: Int -> Int -> Int
+    | a b => compose
+        bind sum <- newRef 0
+        bind x <- modifyRef sum a
+        bind current <- readRef sum
+        bind x <- modifyRef sum (current + b)
+        bind result <- readRef sum
+        result
+def stateBranch :: Int -> Int
+    | x => compose
+        bind counter <- newRef 0
+        bind x <- modifyRef counter 10
+        bind final <- readRef counter
+        final
+def validateAndAdd :: Int -> Int -> Option Int
+    | x y => compose
+        bind a <- Some x
+        bind b <- Some y
+        Some (a + b)
+def eitherChain :: Int -> Either String Int
+    | x => compose
+        bind a <- Right x
+        bind b <- Right (a + 1)
+        Right (b + 10)
+def multiRef :: Int -> Int
+    | x => compose
+        bind r1 <- newRef x
+        bind r2 <- newRef 0
+        bind v1 <- readRef r1
+        bind x <- modifyRef r2 (v1 + 1)
+        bind v2 <- readRef r2
+        v1 + v2
+def main :: IO Int =
+    let whew = id 5 in
+    let primes = primeNumbers in
+    let primesPlusOne = map (\x -> 1) primes in
+    compose
+        println (display primesPlusOne)
+        pure 0
+def mainZeroOverhead :: IO () =
+    compose
+        let test1 = testStateMem2Reg true
+        let test2 = testStateMem2Reg false
+        let test3 = statefulCompute 10 20
+        let test4 = stateBranch 5
+        let test5 = validateAndAdd 3 7
+        let test6 = multiRef 100
+        let string = if true then "All tests passed!" else "Some tests failed."
+        pure ()
