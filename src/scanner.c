@@ -161,12 +161,18 @@ bool tree_sitter_soma_external_scanner_scan(
   const bool *valid_symbols
 ) {
   Scanner *scanner = (Scanner *)payload;
-  // Handle Layout End for error recovery
+  // Only handle LAYOUT_END during error recovery if we're at a newline
+  // and actual indentation warrants it
   if (valid_symbols[LAYOUT_END] && scanner->indent_count > 1) {
-    scanner->indent_count = 1;
-    ts_lexer->result_symbol = LAYOUT_END;
-    ts_lexer->mark_end(ts_lexer);
-    return true;
+    // Don't emit LAYOUT_END unless we've actually computed 
+    // a dedent from newline processing
+    if (scanner->indent_computed && scanner->expected_indent < current_indent(scanner)) {
+      pop_indent(scanner);
+      ts_lexer->result_symbol = LAYOUT_END;
+      ts_lexer->mark_end(ts_lexer);
+      return true;
+    }
+    // Otherwise fall through to normal processing
   }
   // Skip Whitespace (but not newlines)
   while (ts_lexer->lookahead == ' ' ||

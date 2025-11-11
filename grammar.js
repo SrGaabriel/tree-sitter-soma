@@ -83,20 +83,27 @@ module.exports = grammar({
     field_declaration: ($) =>
       seq(field("name", $.identifier), $.colon_colon, field("type", $._type)),
 
-    function_declaration: ($) =>
-      seq(
-        $.def,
-        field("name", choice($.identifier, $.operator)),
-        optional(field("parameters", $.parameter_list)),
-        optional(
+      function_declaration: ($) =>
+        seq(
+          $.def,
+          field("name", choice($.identifier, $.operator)),
+          optional(field("parameters", $.parameter_list)),
           choice(
-            seq($.colon_colon, field("type_signature", $._type)),
-            seq($.arrow, field("return_type", $._type)),
-          ),
+            // Type signature style - only pattern matching allowed
+            seq(
+              $.colon_colon,
+              field("type_signature", $._type),
+              field("body", $.pattern_matching_body)
+            ),
+            // Equals style - only expressions allowed
+            seq(
+              optional(seq($.arrow, field("return_type", $._type))),
+              optional(field("constraints", $.where_clause)),
+              $.equal,
+              field("body", choice($._expression, $._block_expression))
+            )
+          )
         ),
-        optional(field("constraints", $.where_clause)),
-        $._function_body,
-      ),
 
     parameter_list: ($) => seq("(", commaSep1($.typed_parameter), ")"),
 
