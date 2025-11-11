@@ -5,5 +5,7 @@ def sum(x: Int, y: Int) -> Int =
 
 def sum(x: Int, y: Int) -> Int = Some x
 
+def sum(x: Int, y: Int) -> Int = sum x y
+
 def chooseRight :: a -> a -> a
     | lhs rhs => rhs

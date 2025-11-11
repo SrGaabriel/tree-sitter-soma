@@ -146,14 +146,19 @@ module.exports = grammar({
         $.wildcard,
       ),
 
+    associative_expression: ($) => choice(
+      $.app_expression,
+      $._primary_expression,
+    ),
+      
     app_expression: ($) =>
       seq(
         field("function", $._primary_expression),
-        field("arguments", repeat($._primary_expression)),
+        field("arguments", repeat1($._primary_expression)),
       ),
 
     infix_expression: ($) =>
-      seq($.app_expression, repeat(seq($.operator, $.app_expression))),
+      seq($.associative_expression, repeat(seq($.operator, $.associative_expression))),
 
     parenthesized_expression: ($) => seq("(", $._expression, ")"),
 

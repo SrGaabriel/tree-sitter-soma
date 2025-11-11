@@ -654,6 +654,19 @@
         }
       ]
     },
+    "associative_expression": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "app_expression"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_primary_expression"
+        }
+      ]
+    },
     "app_expression": {
       "type": "SEQ",
       "members": [
@@ -669,7 +682,7 @@
           "type": "FIELD",
           "name": "arguments",
           "content": {
-            "type": "REPEAT",
+            "type": "REPEAT1",
             "content": {
               "type": "SYMBOL",
               "name": "_primary_expression"
@@ -683,7 +696,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "app_expression"
+          "name": "associative_expression"
         },
         {
           "type": "REPEAT",
@@ -696,7 +709,7 @@
               },
               {
                 "type": "SYMBOL",
-                "name": "app_expression"
+                "name": "associative_expression"
               }
             ]
           }
