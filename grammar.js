@@ -1,326 +1,285 @@
 const PREC = {
-    apply: 2,
-    infix: 1,
-    arrow: 0,
+  apply: 2,
+  infix: 1,
+  arrow: 0,
 };
 
 module.exports = grammar({
-    name: 'soma',
+  name: 'soma',
 
-    extras: $ => [
-        $.comment,
-        /[ \t]/  // Only horizontal whitespace as extras
-    ],
+  externals: $ => [
+    $._layout_start,
+    $._layout_separator,
+    $._layout_end,
+    $._operator,
+    $._def,
+    $._equal,
+    $._colon_colon,
+    $._arrow,
+    $._bar,
+    $._double_arrow,
+    $._colon,
+    $._if,
+    $._then,
+    $._else,
+    $._let,
+    $._in,
+    $._compose,
+    $._bind,
+    $._true,
+    $._false,
+    $._where,
+  ],
 
-    externals: $ => [
-        $._newline,
-        $._indent,
-        $._dedent,
-        $._error_sentinel,
-    ],
+  extras: $ => [
+    $.comment,
+    /[ \t\r\f]+/,
+  ],
 
-    word: $ => $.identifier,
+  word: $ => $.identifier,
 
-    rules: {
-        source_file: $ => repeat($._top_level_declaration),
+  rules: {
+    source_file: $ => seq(
+      optional($._layout_separator),
+      optional(seq(
+        $._top_level_declaration,
+        repeat(seq($._layout_separator, $._top_level_declaration))
+      )),
+      optional($._layout_separator)
+    ),
 
-        comment: $ => token(seq('//', /.*/)),
+    comment: $ => token('//.*'),
 
-        _top_level_declaration: $ => choice(
-            $.use_statement,
-            $.intrinsic_declaration,
-            $.data_declaration,
-            $.trait_declaration,
-            $.instance_declaration,
-            $.function_declaration,
-            $._newline
-        ),
+    _block_expression: $ => seq(
+      $._layout_start,
+      $._expression,
+      $._layout_end
+    ),
 
-        // Identifiers and operators
-        identifier: $ => /[a-z_][a-zA-Z0-9_']*/,
-        type_name: $ => /[A-Z][a-zA-Z0-9_']*/,
-        operator: $ => /[+\-*\/<>=!&|]+/,
+    _definition_rhs: $ => choice(
+      $._expression,
+      $._block_expression
+    ),
 
-        // Literals
-        integer_literal: $ => /\d+/,
-        string_literal: $ => /"([^"\\]|\\.)*"/,
-        bool_literal: $ => choice('true', 'false'),
-        list_literal: $ => seq('[', commaSep($._expression), ']'),
+    _top_level_declaration: $ => choice(
+      $.function_declaration,
+    ),
 
-        _literal: $ => choice(
-            $.integer_literal,
-            $.string_literal,
-            $.bool_literal,
-            $.list_literal
-        ),
+    identifier: $ => /[a-z_][a-zA-Z0-9_']*/,
 
-        // Use statement
-        use_statement: $ => seq(
-            'use',
-            field('module', choice($.identifier, $.type_name)),
-            optional(seq(
-                '.{',
-                commaSep1(field('imports', choice($.identifier, $.type_name, $.operator))),
-                '}'
-            )),
-        ),
+    type_name: $ => /[A-Z][a-zA-Z0-9_']*/,
 
-        // Intrinsic declaration
-        intrinsic_declaration: $ => seq(
-            'intrinsic',
-            choice(
-                seq('data', $.type_name, '::', $.kind),
-                seq('def', choice($.identifier, $.operator), '::', $._type, optional($.where_clause))
-            )
-        ),
+    integer_literal: $ => /\d+/,
 
-        kind: $ => sepBy1('->', '*'),
+    string_literal: $ => /"([^"\\]|\\.)*"/,
 
-        // Data declaration
-        data_declaration: $ => seq(
-            'data',
-            field('name', $.type_name),
-            field('parameters', repeat($.identifier)),
-            optional(choice(
-                seq('=', sepBy1('|', $.constructor_declaration_simple)),
-                statement_layout($, $.constructor_declaration_full)
-            ))
-        ),
+    bool_literal: $ => choice($._true, $._false),
 
-        constructor_declaration_simple: $ => $.type_name,
+    list_literal: $ => seq('[', commaSep($._expression), ']'),
 
-        constructor_declaration_full: $ => seq(
-            optional('|'),
-            field('name', $.type_name),
-            optional(statement_layout($, $.field_declaration))
-        ),
+    _literal: $ => choice(
+      $.integer_literal,
+      $.string_literal,
+      $.bool_literal,
+      $.list_literal
+    ),
 
-        field_declaration: $ => seq(
-            field('name', $.identifier),
-            '::',
-            field('type', $._type)
-        ),
+    kind: $ => sepBy1($._arrow, '*'),
 
-        // Trait declaration
-        trait_declaration: $ => seq(
-            'trait',
-            field('name', $.type_name),
-            field('parameters', repeat($.identifier)),
-            'where',
-            statement_layout($, $.function_signature_declaration)
-        ),
+    field_declaration: $ => seq(
+      field('name', $.identifier),
+      $._colon_colon,
+      field('type', $._type)
+    ),
 
-        function_signature_declaration: $ => seq(
-            'def',
-            field('name', choice($.identifier, $.operator)),
-            '::',
-            field('type', $._type),
-            optional(field('constraints', $.where_clause))
-        ),
+    function_declaration: $ => seq(
+      $._def,
+      field('name', choice($.identifier, $._operator)),
+      optional(field('parameters', $.parameter_list)),
+      optional(choice(
+        seq($._colon_colon, field('type_signature', $._type)),
+        seq($._arrow, field('return_type', $._type))
+      )),
+      optional(field('constraints', $.where_clause)),
+      $._function_body
+    ),
 
-        // Instance declaration
-        instance_declaration: $ => seq(
-            'instance',
-            field('trait', $.type_name),
-            field('types', repeat($._type)),
-            'where',
-            statement_layout($, $.instance_function)
-        ),
+    parameter_list: $ => seq(
+      '(',
+      commaSep1($.typed_parameter),
+      ')'
+    ),
 
-        instance_function: $ => seq(
-            'def',
-            field('name', choice($.identifier, $.operator)),
-            optional(field('parameters', $.parameter_list)),
-            optional(seq('::', field('return_type', $._type))),
-            optional(field('constraints', $.where_clause)),
-            $._function_body
-        ),
+    typed_parameter: $ => seq(
+      field('name', $.identifier),
+      $._colon,
+      field('type', $._type)
+    ),
 
-        // Function declaration
-        function_declaration: $ => seq(
-            'def',
-            field('name', choice($.identifier, $.operator)),
-            optional(field('parameters', $.parameter_list)),
-            optional(choice(
-                seq('::', field('type_signature', $._type)),
-                seq('->', field('return_type', $._type))
-            )),
-            optional(field('constraints', $.where_clause)),
-            $._function_body
-        ),
+    _function_body: $ => choice(
+      seq($._equal, field('body', $._definition_rhs)),
+      field('body', $.pattern_matching_body)
+    ),
 
-        parameter_list: $ => seq(
-            '(',
-            commaSep1($.typed_parameter),
-            ')'
-        ),
+    where_clause: $ => seq($._where, commaSep1($.trait_constraint)),
 
-        typed_parameter: $ => seq(
-            field('name', $.identifier),
-            ':',
-            field('type', $._type)
-        ),
+    trait_constraint: $ => seq(
+      field('parameter', $.identifier),
+      $._colon,
+      field('trait', $.type_name)
+    ),
 
-        _function_body: $ => choice(
-            seq('=', field('body', $._expression)),
-            field('body', $.pattern_matching_body)
-        ),
+    pattern_matching_body: $ => statement_layout($, $.match_arm),
 
-        where_clause: $ => seq('where', commaSep1($.trait_constraint)),
-        trait_constraint: $ => seq(
-            field('parameter', $.identifier),
-            ':',
-            field('trait', $.type_name)
-        ),
+    match_arm: $ => seq(
+      $._bar,
+      field('patterns', repeat1($._pattern)),
+      $._double_arrow,
+      field('body', $._expression)
+    ),
 
-        pattern_matching_body: $ => statement_layout($, $.match_arm),
+    _expression: $ => choice(
+      $.let_expression,
+      $.compose_block,
+      $.if_expression,
+      $.lambda_expression,
+      $.infix_expression
+    ),
 
-        match_arm: $ => seq(
-            '|',
-            field('patterns', repeat1($._pattern)),
-            '=>',
-            field('body', $._expression)
-        ),
+    _primary_expression: $ => choice(
+      $.identifier,
+      $.type_name,
+      $._literal,
+      $.parenthesized_expression,
+      $.wildcard
+    ),
 
-        // Expressions
-        _expression: $ => choice(
-            $.let_expression,
-            $.compose_block,
-            $.if_expression,
-            $.lambda_expression,
-            $.binary_expression,
-            $.function_application,
-            $._primary_expression
-        ),
+    app_expression: $ => seq(
+      field('function', $._primary_expression),
+      field('arguments', repeat($._primary_expression))
+    ),
 
-        _primary_expression: $ => choice(
-            $.identifier,
-            $.type_name,
-            $._literal,
-            $.parenthesized_expression,
-            $.wildcard
-        ),
+    infix_expression: $ => seq(
+      $.app_expression,
+      repeat(seq($._operator, $.app_expression))
+    ),
 
-        parenthesized_expression: $ => seq('(', $._expression, ')'),
-        wildcard: $ => '_',
+    parenthesized_expression: $ => seq('(', $._expression, ')'),
 
-        function_application: $ => prec.left(PREC.apply, seq(
-            field('function', $._primary_expression),
-            field('arguments', repeat1($._primary_expression))
-        )),
+    wildcard: $ => '_',
 
-        binary_expression: $ => prec.left(PREC.infix, seq(
-            field('left', $._expression),
-            field('operator', $.operator),
-            field('right', $._expression)
-        )),
+    _apply_expression: $ => choice(
+      $._primary_expression,
+      prec.left(PREC.apply, seq(
+        field('function', $._apply_expression),
+        field('argument', $._primary_expression)
+      ))
+    ),
 
-        lambda_expression: $ => seq(
-            '\\',
-            field('parameters', repeat1($._pattern)),
-            '->',
-            field('body', $._expression)
-        ),
+    lambda_expression: $ => seq(
+      '\\',
+      field('parameters', repeat1($._pattern)),
+      $._arrow,
+      field('body', $._expression)
+    ),
 
-        if_expression: $ => seq(
-            'if',
-            field('condition', $._expression),
-            'then',
-            field('consequence', $._expression),
-            'else',
-            field('alternative', $._expression)
-        ),
+    if_expression: $ => seq(
+      $._if,
+      field('condition', $._expression),
+      $._then,
+      field('consequence', $._expression),
+      $._else,
+      field('alternative', $._expression)
+    ),
 
-        let_expression: $ => seq(
-            'let',
-            field('pattern', $._pattern),
-            '=',
-            field('value', $._expression),
-            'in',
-            field('body', $._expression)
-        ),
+    let_expression: $ => seq(
+      $._let,
+      field('pattern', $._pattern),
+      $._equal,
+      field('value', $._expression),
+      $._in,
+      field('body', $._definition_rhs)
+    ),
 
-        compose_block: $ => seq(
-            'compose',
-            statement_layout($, $._compose_statement)
-        ),
+    compose_block: $ => seq(
+      $._compose,
+      statement_layout($, $._compose_statement)
+    ),
 
-        _compose_statement: $ => choice(
-            $.bind_statement,
-            $.let_statement,
-            $._expression
-        ),
+    _compose_statement: $ => choice(
+      $.bind_statement,
+      $.let_statement,
+      $._expression
+    ),
 
-        bind_statement: $ => seq(
-            'bind',
-            field('pattern', $._pattern),
-            '<-',
-            field('value', $._expression)
-        ),
+    bind_statement: $ => seq(
+      $._bind,
+      field('pattern', $._pattern),
+      '<-',
+      field('value', $._expression)
+    ),
 
-        let_statement: $ => seq(
-            'let',
-            field('pattern', $._pattern),
-            '=',
-            field('value', $._expression)
-        ),
+    let_statement: $ => seq(
+      $._let,
+      field('pattern', $._pattern),
+      $._equal,
+      field('value', $._definition_rhs)
+    ),
 
-        // Patterns
-        _pattern: $ => choice(
-            $.identifier,
-            $._literal,
-            $.constructor_pattern,
-            $.parenthesized_pattern,
-            $.wildcard
-        ),
+    _pattern: $ => choice(
+      $.identifier,
+      $._literal,
+      $.constructor_pattern,
+      $.parenthesized_pattern,
+      $.wildcard
+    ),
 
-        constructor_pattern: $ => seq(
-            '(',
-            field('constructor', $.type_name),
-            field('fields', repeat1($._pattern)),
-            ')'
-        ),
+    constructor_pattern: $ => seq(
+      '(',
+      field('constructor', $.type_name),
+      field('fields', repeat1($._pattern)),
+      ')'
+    ),
 
-        parenthesized_pattern: $ => seq('(', $._pattern, ')'),
+    parenthesized_pattern: $ => seq('(', $._pattern, ')'),
 
-        // Types
-        _type: $ => choice(
-            $.type_name,
-            $.identifier,
-            $.list_type,
-            $.function_type,
-            $.parenthesized_type
-        ),
+    _type: $ => choice(
+      $.type_name,
+      $.identifier,
+      $.list_type,
+      $.function_type,
+      $.parenthesized_type
+    ),
 
-        list_type: $ => seq('[', field('element', $._type), ']'),
+    list_type: $ => seq('[', field('element', $._type), ']'),
 
-        function_type: $ => prec.right(PREC.arrow, seq(
-            field('parameter', $._type),
-            '->',
-            field('return', $._type)
-        )),
+    function_type: $ => prec.right(PREC.arrow, seq(
+      field('parameter', $._type),
+      $._arrow,
+      field('return', $._type)
+    )),
 
-        parenthesized_type: $ => seq('(', $._type, ')'),
-    }
+    parenthesized_type: $ => seq('(', $._type, ')'),
+  }
 });
 
 function statement_layout($, rule) {
-    return seq(
-        $._indent,
-        sepBy1($._newline, rule),
-        optional($._newline),
-        $._dedent
-    );
+  return seq(
+    $._layout_start,
+    sepBy1($._layout_separator, rule),
+    optional($._layout_separator),
+    $._layout_end
+  );
 }
 
 function commaSep1(rule) {
-    return seq(rule, repeat(seq(',', rule)));
+  return seq(rule, repeat(seq(',', rule)));
 }
 
 function commaSep(rule) {
-    return optional(commaSep1(rule));
+  return optional(commaSep1(rule));
 }
 
 function sepBy1(sep, rule) {
-    return seq(rule, repeat(seq(sep, rule)));
+  return seq(rule, repeat(seq(sep, rule)));
 }

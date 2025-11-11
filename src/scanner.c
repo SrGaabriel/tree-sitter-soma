@@ -1,221 +1,365 @@
+/**
+ * Soma Language Scanner
+ *
+ * Handles indentation-sensitive layout and custom braced operators.
+ *
+ * This scanner emits:
+ * - LAYOUT_START: When a block's indentation increases.
+ * - LAYOUT_END: When a block's indentation decreases.
+ * - LAYOUT_SEPARATOR: A "virtual semicolon" for items on new lines at the same indentation level.
+ * - OPERATOR: For custom operators in braces like {+} or general operators.
+ * - Reserved symbols and keywords if valid.
+ */
 #include "tree_sitter/parser.h"
-#include <wctype.h>
-#include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdbool.h>
+#include <stdint.h>
 
-enum TokenType {
-    NEWLINE,
-    INDENT,
-    DEDENT,
-    ERROR_SENTINEL,
-};
+typedef enum {
+  LAYOUT_START,     // 0
+  LAYOUT_SEPARATOR, // 1
+  LAYOUT_END,       // 2
+  OPERATOR,         // 3
+  DEF,              // 4
+  EQUAL,            // 5
+  COLON_COLON,      // 6
+  ARROW,            // 7
+  BAR,              // 8
+  DOUBLE_ARROW,     // 9
+  COLON,            // 10
+  IF,               // 11
+  THEN,             // 12
+  ELSE,             // 13
+  LET,              // 14
+  IN,               // 15
+  COMPOSE,          // 16
+  BIND,             // 17
+  TRUE,             // 18
+  FALSE,            // 19
+  WHERE,            // 20
+} Symbol;
 
+// ========================================
+// Scanner State
+// ========================================
+#define MAX_INDENTS 64
 typedef struct {
-    uint16_t *indents;
-    uint16_t size;
-    uint16_t capacity;
-} IndentStack;
+  uint32_t indents[MAX_INDENTS];
+  uint32_t indent_count;
+  uint32_t expected_indent;
+  bool indent_computed;
+} Scanner;
 
-static IndentStack *indent_stack_create() {
-    IndentStack *stack = malloc(sizeof(IndentStack));
-    stack->capacity = 16;
-    stack->size = 0;
-    stack->indents = malloc(stack->capacity * sizeof(uint16_t));
-    stack->indents[0] = 0;
-    stack->size = 1;
-    return stack;
+// ========================================
+// Helper Functions
+// ========================================
+
+static void push_indent(Scanner *s, uint32_t indent) {
+  if (s->indent_count < MAX_INDENTS) {
+    s->indents[s->indent_count] = indent;
+    s->indent_count++;
+  }
 }
 
-static void indent_stack_destroy(IndentStack *stack) {
-    free(stack->indents);
-    free(stack);
+static void pop_indent(Scanner *s) {
+  if (s->indent_count > 0) {
+    s->indent_count--;
+  }
 }
 
-static void indent_stack_push(IndentStack *stack, uint16_t indent) {
-    if (stack->size == stack->capacity) {
-        stack->capacity *= 2;
-        stack->indents = realloc(stack->indents, stack->capacity * sizeof(uint16_t));
-    }
-    stack->indents[stack->size++] = indent;
+static uint32_t current_indent(Scanner *s) {
+  if (s->indent_count == 0) return 0;
+  return s->indents[s->indent_count - 1];
 }
 
-static void indent_stack_pop(IndentStack *stack) {
-    if (stack->size > 1) {
-        stack->size--;
-    }
+static bool is_operator_char(int32_t c) {
+  return c == '+' || c == '-' || c == '*' || c == '/' ||
+         c == '<' || c == '>' || c == '=' || c == '!' ||
+         c == '&' || c == '|' || c == '%' || c == '^' ||
+         c == '~' || c == ':' || c == '.' || c == '$';
 }
 
-static uint16_t indent_stack_peek(const IndentStack *stack) {
-    if (stack->size == 0) return 0;
-    return stack->indents[stack->size - 1];
+static bool is_ident_char(int32_t c) {
+  return isalnum(c) || c == '_' || c == '\'';
 }
 
-static void indent_stack_reset(IndentStack *stack) {
-    stack->size = 1;
-    stack->indents[0] = 0;
+static bool scan_operator_in_braces(TSLexer *ts_lexer) {
+  if (ts_lexer->lookahead != '{') return false;
+  ts_lexer->advance(ts_lexer, false); // Consume '{'
+  if (!is_operator_char(ts_lexer->lookahead)) {
+    return false; // Not an operator
+  }
+  while (is_operator_char(ts_lexer->lookahead)) {
+    ts_lexer->advance(ts_lexer, false);
+  }
+  if (ts_lexer->lookahead != '}') {
+    return false; // Failed
+  }
+  ts_lexer->advance(ts_lexer, false); // Consume '}'
+  ts_lexer->mark_end(ts_lexer);
+  return true;
 }
 
-static unsigned indent_stack_serialize(const IndentStack *stack, char *buffer) {
-    unsigned size = stack->size * sizeof(uint16_t);
-    if (size > TREE_SITTER_SERIALIZATION_BUFFER_SIZE) {
-        size = TREE_SITTER_SERIALIZATION_BUFFER_SIZE;
-    }
-    memcpy(buffer, stack->indents, size);
-    return size;
+static bool match_keyword(TSLexer *ts_lexer, const char *str) {
+  size_t len = strlen(str);
+  for (size_t i = 0; i < len; i++) {
+    if (ts_lexer->lookahead != str[i]) return false;
+    ts_lexer->advance(ts_lexer, false);
+  }
+  if (is_ident_char(ts_lexer->lookahead)) return false; // Not a keyword if continues as identifier
+  return true;
 }
 
-static void indent_stack_deserialize(IndentStack *stack, const char *buffer, unsigned length) {
-    stack->size = 0;
-    if (length > 0) {
-        unsigned new_size = length / sizeof(uint16_t);
-        if (new_size > stack->capacity) {
-            stack->capacity = new_size;
-            stack->indents = realloc(stack->indents, stack->capacity * sizeof(uint16_t));
-        }
-        memcpy(stack->indents, buffer, length);
-        stack->size = new_size;
-    }
-    if (stack->size == 0) {
-        stack->indents[0] = 0;
-        stack->size = 1;
-    }
-}
+// ========================================
+// Scanner API
+// ========================================
 
-void *tree_sitter_soma_external_scanner_create() {
-    return indent_stack_create();
+void *tree_sitter_soma_external_scanner_create(void) {
+  Scanner *scanner = calloc(1, sizeof(Scanner));
+  scanner->indent_count = 0;
+  scanner->indent_computed = false;
+  push_indent(scanner, 0); // Start with 0 indent
+  return scanner;
 }
 
 void tree_sitter_soma_external_scanner_destroy(void *payload) {
-    IndentStack *stack = (IndentStack *)payload;
-    indent_stack_destroy(stack);
-}
-
-void tree_sitter_soma_external_scanner_reset(void *payload) {
-    IndentStack *stack = (IndentStack *)payload;
-    indent_stack_reset(stack);
+  free(payload);
 }
 
 unsigned tree_sitter_soma_external_scanner_serialize(void *payload, char *buffer) {
-    IndentStack *stack = (IndentStack *)payload;
-    return indent_stack_serialize(stack, buffer);
+  Scanner *scanner = (Scanner *)payload;
+  size_t size = sizeof(Scanner);
+  if (size > TREE_SITTER_SERIALIZATION_BUFFER_SIZE) return 0;
+  memcpy(buffer, scanner, size);
+  return size;
 }
 
 void tree_sitter_soma_external_scanner_deserialize(void *payload, const char *buffer, unsigned length) {
-    IndentStack *stack = (IndentStack *)payload;
-    indent_stack_deserialize(stack, buffer, length);
+  Scanner *scanner = (Scanner *)payload;
+  if (length == 0) {
+    scanner->indent_count = 0;
+    scanner->indent_computed = false;
+    push_indent(scanner, 0);
+  } else {
+    memcpy(scanner, buffer, length);
+  }
 }
 
-bool tree_sitter_soma_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
-    IndentStack *stack = (IndentStack *)payload;
-
-    // Don't scan if we're in error recovery mode
-    if (valid_symbols[ERROR_SENTINEL]) {
-        return false;
+bool tree_sitter_soma_external_scanner_scan(
+  void *payload,
+  TSLexer *ts_lexer,
+  const bool *valid_symbols
+) {
+  Scanner *scanner = (Scanner *)payload;
+  // Handle Layout End for error recovery
+  if (valid_symbols[LAYOUT_END] && scanner->indent_count > 1) {
+    scanner->indent_count = 1;
+    ts_lexer->result_symbol = LAYOUT_END;
+    ts_lexer->mark_end(ts_lexer);
+    return true;
+  }
+  // Skip Whitespace (but not newlines)
+  while (ts_lexer->lookahead == ' ' ||
+         ts_lexer->lookahead == '\t' ||
+         ts_lexer->lookahead == '\r') {
+    ts_lexer->advance(ts_lexer, true);
+  }
+  // Handle EOF with pending dedents
+  if (ts_lexer->lookahead == 0) {
+    if (scanner->indent_count > 1 && valid_symbols[LAYOUT_END]) {
+      pop_indent(scanner);
+      ts_lexer->result_symbol = LAYOUT_END;
+      ts_lexer->mark_end(ts_lexer);
+      return true;
     }
-
-    // Skip comments first (they're handled by the main parser)
-    bool has_content = false;
-    
-    // Check if any of our tokens are valid
-    if (!valid_symbols[NEWLINE] && !valid_symbols[INDENT] && !valid_symbols[DEDENT]) {
-        return false;
-    }
-
-    lexer->mark_end(lexer);
-
-    bool found_end_of_line = false;
-    uint32_t indent_length = 0;
-    
-    // Skip whitespace and track newlines
-    for (;;) {
-        if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-            indent_length++;
-            lexer->advance(lexer, true);
-        } else if (lexer->lookahead == '\n') {
-            found_end_of_line = true;
-            indent_length = 0;
-            lexer->advance(lexer, true);
-        } else if (lexer->lookahead == '\r') {
-            found_end_of_line = true;
-            indent_length = 0;
-            lexer->advance(lexer, true);
-            if (lexer->lookahead == '\n') {
-                lexer->advance(lexer, true);
-            }
-        } else {
-            break;
-        }
-    }
-
-    // Handle end of file
-    if (lexer->eof(lexer)) {
-        if (valid_symbols[DEDENT] && indent_stack_peek(stack) > 0) {
-            indent_stack_pop(stack);
-            lexer->result_symbol = DEDENT;
-            return true;
-        }
-        return false;
-    }
-
-    // Skip comment lines when checking indentation
-    if (lexer->lookahead == '/' && found_end_of_line) {
-        lexer->mark_end(lexer);
-        lexer->advance(lexer, false);
-        if (lexer->lookahead == '/') {
-            // It's a comment, skip to end of line
-            while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && !lexer->eof(lexer)) {
-                lexer->advance(lexer, false);
-            }
-            return false; // Let parser handle the comment
-        }
-    }
-
-    // ... inside tree_sitter_soma_external_scanner_scan, replacing the old logic ...
-
-    // If we found a newline, handle indentation
-    if (found_end_of_line) {
-        lexer->mark_end(lexer);
-        
-        uint16_t current_indent = lexer->get_column(lexer);
-        uint16_t last_indent = indent_stack_peek(stack);
-
-        if (valid_symbols[INDENT] && current_indent > last_indent) {
-            // 1. INDENT case
-            indent_stack_push(stack, current_indent);
-            lexer->result_symbol = INDENT;
-            return true;
-        }
-
-        // 2. DEDENT case (CRITICAL FIX: Use a while loop for multiple DEDENTS)
-        while (valid_symbols[DEDENT] && current_indent < last_indent) {
-            indent_stack_pop(stack);
-            last_indent = indent_stack_peek(stack); // Update last_indent after pop
-            
-            // If the indentation matches an expected level, we've found the correct stop
-            if (current_indent == last_indent) {
-                lexer->result_symbol = DEDENT;
-                return true;
-            }
-            
-            // Continue to pop and emit DEDENTs until we match or undershoot
-        }
-
-        // If current_indent is less than *any* previous indent level
-        // and we didn't match the new expected level, that's an IndentationError.
-        // The default Tree-sitter error recovery might handle this, 
-        // but you might want to emit ERROR_SENTINEL here.
-        if (current_indent < last_indent) {
-            // Indentation error (e.g., indent is 3 when it should be 4 or 0)
-            // If you don't handle this, the parser will likely fail anyway.
-            // For simplicity in a basic scanner, we often rely on the parser to error.
-        }
-
-        // 3. NEWLINE case
-        if (valid_symbols[NEWLINE] && current_indent == last_indent) {
-            lexer->result_symbol = NEWLINE;
-            return true;
-        }
-    }
-
     return false;
+  }
+  // Handle pending dedents/indents first
+  uint32_t current = current_indent(scanner);
+  if (scanner->indent_computed) {
+    if (scanner->expected_indent > current && valid_symbols[LAYOUT_START]) {
+      push_indent(scanner, scanner->expected_indent);
+      ts_lexer->result_symbol = LAYOUT_START;
+      ts_lexer->mark_end(ts_lexer);
+      scanner->indent_computed = false;
+      return true;
+    } else if (scanner->expected_indent < current) {
+      if (valid_symbols[LAYOUT_END]) {
+        pop_indent(scanner);
+        ts_lexer->result_symbol = LAYOUT_END;
+        ts_lexer->mark_end(ts_lexer);
+        if (scanner->expected_indent < current_indent(scanner)) {
+          return true;
+        } else {
+          scanner->indent_computed = false;
+          return true;
+        }
+      }
+    } else {
+      if (valid_symbols[LAYOUT_SEPARATOR]) {
+        ts_lexer->result_symbol = LAYOUT_SEPARATOR;
+        ts_lexer->mark_end(ts_lexer);
+        scanner->indent_computed = false;
+        return true;
+      }
+    }
+    scanner->indent_computed = false;
+  }
+  // Handle Newlines
+  if (ts_lexer->lookahead == '\n') {
+    ts_lexer->advance(ts_lexer, true);
+    uint32_t indent = 0;
+    while (true) {
+      while (ts_lexer->lookahead == ' ' || ts_lexer->lookahead == '\t' || ts_lexer->lookahead == '\r') {
+        ts_lexer->advance(ts_lexer, true);
+      }
+      if (ts_lexer->lookahead == 0) break;
+      uint32_t col = ts_lexer->get_column(ts_lexer);
+      if (ts_lexer->lookahead == '/') {
+        ts_lexer->advance(ts_lexer, true);
+        if (ts_lexer->lookahead == '/') {
+          ts_lexer->advance(ts_lexer, true);
+          while (ts_lexer->lookahead != '\n' && ts_lexer->lookahead != 0) {
+            ts_lexer->advance(ts_lexer, true);
+          }
+          if (ts_lexer->lookahead == '\n') {
+            ts_lexer->advance(ts_lexer, true);
+            continue;
+          } else {
+            break;
+          }
+        } else {
+          indent = col;
+          break;
+        }
+      } else if (ts_lexer->lookahead == '\n') {
+        ts_lexer->advance(ts_lexer, true);
+        continue;
+      } else {
+        indent = ts_lexer->get_column(ts_lexer);
+        break;
+      }
+    }
+    scanner->expected_indent = indent;
+    scanner->indent_computed = true;
+    return tree_sitter_soma_external_scanner_scan(payload, ts_lexer, valid_symbols);
+  }
+  // Keywords
+  if (islower(ts_lexer->lookahead) || ts_lexer->lookahead == '_') {
+    if (valid_symbols[DEF] && match_keyword(ts_lexer, "def")) {
+      ts_lexer->result_symbol = DEF;
+      ts_lexer->mark_end(ts_lexer);
+      return true;
+    }
+    if (valid_symbols[IF] && match_keyword(ts_lexer, "if")) {
+      ts_lexer->result_symbol = IF;
+      ts_lexer->mark_end(ts_lexer);
+      return true;
+    }
+    if (valid_symbols[THEN] && match_keyword(ts_lexer, "then")) {
+      ts_lexer->result_symbol = THEN;
+      ts_lexer->mark_end(ts_lexer);
+      return true;
+    }
+    if (valid_symbols[ELSE] && match_keyword(ts_lexer, "else")) {
+      ts_lexer->result_symbol = ELSE;
+      ts_lexer->mark_end(ts_lexer);
+      return true;
+    }
+    if (valid_symbols[LET] && match_keyword(ts_lexer, "let")) {
+      ts_lexer->result_symbol = LET;
+      ts_lexer->mark_end(ts_lexer);
+      return true;
+    }
+    if (valid_symbols[IN] && match_keyword(ts_lexer, "in")) {
+      ts_lexer->result_symbol = IN;
+      ts_lexer->mark_end(ts_lexer);
+      return true;
+    }
+    if (valid_symbols[COMPOSE] && match_keyword(ts_lexer, "compose")) {
+      ts_lexer->result_symbol = COMPOSE;
+      ts_lexer->mark_end(ts_lexer);
+      return true;
+    }
+    if (valid_symbols[BIND] && match_keyword(ts_lexer, "bind")) {
+      ts_lexer->result_symbol = BIND;
+      ts_lexer->mark_end(ts_lexer);
+      return true;
+    }
+    if (valid_symbols[TRUE] && match_keyword(ts_lexer, "true")) {
+      ts_lexer->result_symbol = TRUE;
+      ts_lexer->mark_end(ts_lexer);
+      return true;
+    }
+    if (valid_symbols[FALSE] && match_keyword(ts_lexer, "false")) {
+      ts_lexer->result_symbol = FALSE;
+      ts_lexer->mark_end(ts_lexer);
+      return true;
+    }
+    if (valid_symbols[WHERE] && match_keyword(ts_lexer, "where")) {
+      ts_lexer->result_symbol = WHERE;
+      ts_lexer->mark_end(ts_lexer);
+      return true;
+    }
+    // If not keyword, fall through, grammar will handle identifier
+    return false;
+  }
+  // Operators and symbols
+  if (is_operator_char(ts_lexer->lookahead)) {
+    int32_t op_buf[32];
+    uint32_t op_len = 0;
+    op_buf[op_len++] = ts_lexer->lookahead;
+    ts_lexer->advance(ts_lexer, false);
+    while (is_operator_char(ts_lexer->lookahead) && op_len < 31) {
+      op_buf[op_len++] = ts_lexer->lookahead;
+      ts_lexer->advance(ts_lexer, false);
+    }
+    ts_lexer->mark_end(ts_lexer);
+    // Check for reserved
+    if (op_len == 2 && op_buf[0] == '-' && op_buf[1] == '>') {
+      if (valid_symbols[ARROW]) {
+        ts_lexer->result_symbol = ARROW;
+        return true;
+      }
+    } else if (op_len == 2 && op_buf[0] == '=' && op_buf[1] == '>') {
+      if (valid_symbols[DOUBLE_ARROW]) {
+        ts_lexer->result_symbol = DOUBLE_ARROW;
+        return true;
+      }
+    } else if (op_len == 2 && op_buf[0] == ':' && op_buf[1] == ':') {
+      if (valid_symbols[COLON_COLON]) {
+        ts_lexer->result_symbol = COLON_COLON;
+        return true;
+      }
+    } else if (op_len == 1 && op_buf[0] == '=') {
+      if (valid_symbols[EQUAL]) {
+        ts_lexer->result_symbol = EQUAL;
+        return true;
+      }
+    } else if (op_len == 1 && op_buf[0] == '|') {
+      if (valid_symbols[BAR]) {
+        ts_lexer->result_symbol = BAR;
+        return true;
+      }
+    } else if (op_len == 1 && op_buf[0] == ':') {
+      if (valid_symbols[COLON]) {
+        ts_lexer->result_symbol = COLON;
+        return true;
+      }
+    } else if (valid_symbols[OPERATOR]) {
+      ts_lexer->result_symbol = OPERATOR;
+      return true;
+    }
+  }
+  // Braced operators
+  if (valid_symbols[OPERATOR] && ts_lexer->lookahead == '{') {
+    if (scan_operator_in_braces(ts_lexer)) {
+      ts_lexer->result_symbol = OPERATOR;
+      return true;
+    }
+  }
+  return false;
 }
