@@ -46,7 +46,7 @@ module.exports = grammar({
         $.def,
         field("name", choice($.identifier, $.operator)),
         $.colon_colon,
-        field("type_signature", $._type),
+        field("type_signature", $.type),
       ),
     
     comment: ($) => token("//.*"),
@@ -83,7 +83,7 @@ module.exports = grammar({
     kind: ($) => sepBy1($.arrow, "*"),
 
     field_declaration: ($) =>
-      seq(field("name", $.identifier), $.colon_colon, field("type", $._type)),
+      seq(field("name", $.identifier), $.colon_colon, field("type", $.type)),
 
     function_declaration: ($) =>
       seq(
@@ -94,12 +94,12 @@ module.exports = grammar({
           // Type signature style - only pattern matching allowed
           seq(
             $.colon_colon,
-            field("type_signature", $._type),
+            field("type_signature", $.type),
             field("body", $.pattern_matching_body),
           ),
           // Equals style - only expressions allowed
           seq(
-            optional(seq($.arrow, field("return_type", $._type))),
+            optional(seq($.arrow, field("return_type", $.type))),
             optional(field("constraints", $.where_clause)),
             $.equal,
             field("body", choice($._expression, $._block_expression)),
@@ -110,7 +110,7 @@ module.exports = grammar({
     parameter_list: ($) => seq("(", commaSep1($.typed_parameter), ")"),
 
     typed_parameter: ($) =>
-      seq(field("name", $.identifier), $.colon, field("type", $._type)),
+      seq(field("name", $.identifier), $.colon, field("type", $.type)),
 
     _function_body: ($) =>
       choice(
@@ -255,7 +255,7 @@ module.exports = grammar({
 
     parenthesized_pattern: ($) => seq("(", $._pattern, ")"),
 
-    _type: ($) =>
+    type: ($) =>
       choice(
         $.type_name,
         $.identifier,
@@ -264,15 +264,15 @@ module.exports = grammar({
         $.parenthesized_type,
       ),
 
-    list_type: ($) => seq("[", field("element", $._type), "]"),
+    list_type: ($) => seq("[", field("element", $.type), "]"),
 
     function_type: ($) =>
       prec.right(
         PREC.arrow,
-        seq(field("parameter", $._type), $.arrow, field("return", $._type)),
+        seq(field("parameter", $.type), $.arrow, field("return", $.type)),
       ),
 
-    parenthesized_type: ($) => seq("(", $._type, ")"),
+    parenthesized_type: ($) => seq("(", $.type, ")"),
   },
 });
 
