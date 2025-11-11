@@ -82,9 +82,16 @@ static bool is_operator_char(int32_t c) {
          c == '~' || c == ':' || c == '.' || c == '$';
 }
 
-static bool is_ident_char(int32_t c) {
-  return isalnum(c) || c == '_' || c == '\'';
+static inline bool isalnum_l(int c) {
+    return ((c >= 'A' && c <= 'Z') ||
+            (c >= 'a' && c <= 'z') ||
+            (c >= '0' && c <= '9'));
 }
+
+static bool is_ident_char(int32_t c) {
+  return isalnum_l(c) || c == '_' || c == '\'';
+}
+
 
 static bool scan_operator_in_braces(TSLexer *ts_lexer) {
   if (ts_lexer->lookahead != '{') return false;
