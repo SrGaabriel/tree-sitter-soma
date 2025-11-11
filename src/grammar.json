@@ -119,6 +119,10 @@
       "type": "PATTERN",
       "value": "[A-Z][a-zA-Z0-9_']*"
     },
+    "constructor_name": {
+      "type": "PATTERN",
+      "value": "[A-Z][a-zA-Z0-9_']*"
+    },
     "integer_literal": {
       "type": "PATTERN",
       "value": "\\d+"
@@ -634,7 +638,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "type_name"
+          "name": "constructor_name"
         },
         {
           "type": "SYMBOL",
