@@ -132,11 +132,11 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "_true"
+          "name": "true"
         },
         {
           "type": "SYMBOL",
-          "name": "_false"
+          "name": "false"
         }
       ]
     },
@@ -221,7 +221,7 @@
             "members": [
               {
                 "type": "SYMBOL",
-                "name": "_arrow"
+                "name": "arrow"
               },
               {
                 "type": "STRING",
@@ -245,7 +245,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_colon_colon"
+          "name": "colon_colon"
         },
         {
           "type": "FIELD",
@@ -262,7 +262,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "_def"
+          "name": "def"
         },
         {
           "type": "FIELD",
@@ -276,7 +276,7 @@
               },
               {
                 "type": "SYMBOL",
-                "name": "_operator"
+                "name": "operator"
               }
             ]
           }
@@ -308,7 +308,7 @@
                   "members": [
                     {
                       "type": "SYMBOL",
-                      "name": "_colon_colon"
+                      "name": "colon_colon"
                     },
                     {
                       "type": "FIELD",
@@ -325,7 +325,7 @@
                   "members": [
                     {
                       "type": "SYMBOL",
-                      "name": "_arrow"
+                      "name": "arrow"
                     },
                     {
                       "type": "FIELD",
@@ -417,7 +417,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_colon"
+          "name": "colon"
         },
         {
           "type": "FIELD",
@@ -437,7 +437,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "_equal"
+              "name": "equal"
             },
             {
               "type": "FIELD",
@@ -464,7 +464,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "_where"
+          "name": "where"
         },
         {
           "type": "SEQ",
@@ -506,7 +506,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_colon"
+          "name": "colon"
         },
         {
           "type": "FIELD",
@@ -573,7 +573,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "_bar"
+          "name": "bar"
         },
         {
           "type": "FIELD",
@@ -588,7 +588,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_double_arrow"
+          "name": "double_arrow"
         },
         {
           "type": "FIELD",
@@ -688,7 +688,7 @@
             "members": [
               {
                 "type": "SYMBOL",
-                "name": "_operator"
+                "name": "operator"
               },
               {
                 "type": "SYMBOL",
@@ -774,7 +774,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_arrow"
+          "name": "arrow"
         },
         {
           "type": "FIELD",
@@ -791,7 +791,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "_if"
+          "name": "if"
         },
         {
           "type": "FIELD",
@@ -803,7 +803,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_then"
+          "name": "then"
         },
         {
           "type": "FIELD",
@@ -815,7 +815,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_else"
+          "name": "else"
         },
         {
           "type": "FIELD",
@@ -832,7 +832,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "_let"
+          "name": "let"
         },
         {
           "type": "FIELD",
@@ -844,7 +844,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_equal"
+          "name": "equal"
         },
         {
           "type": "FIELD",
@@ -856,7 +856,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_in"
+          "name": "in"
         },
         {
           "type": "FIELD",
@@ -873,7 +873,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "_compose"
+          "name": "compose"
         },
         {
           "type": "SEQ",
@@ -949,7 +949,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "_bind"
+          "name": "bind"
         },
         {
           "type": "FIELD",
@@ -978,7 +978,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "_let"
+          "name": "let"
         },
         {
           "type": "FIELD",
@@ -990,7 +990,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_equal"
+          "name": "equal"
         },
         {
           "type": "FIELD",
@@ -1138,7 +1138,7 @@
           },
           {
             "type": "SYMBOL",
-            "name": "_arrow"
+            "name": "arrow"
           },
           {
             "type": "FIELD",
@@ -1196,75 +1196,75 @@
     },
     {
       "type": "SYMBOL",
-      "name": "_operator"
+      "name": "operator"
     },
     {
       "type": "SYMBOL",
-      "name": "_def"
+      "name": "def"
     },
     {
       "type": "SYMBOL",
-      "name": "_equal"
+      "name": "equal"
     },
     {
       "type": "SYMBOL",
-      "name": "_colon_colon"
+      "name": "colon_colon"
     },
     {
       "type": "SYMBOL",
-      "name": "_arrow"
+      "name": "arrow"
     },
     {
       "type": "SYMBOL",
-      "name": "_bar"
+      "name": "bar"
     },
     {
       "type": "SYMBOL",
-      "name": "_double_arrow"
+      "name": "double_arrow"
     },
     {
       "type": "SYMBOL",
-      "name": "_colon"
+      "name": "colon"
     },
     {
       "type": "SYMBOL",
-      "name": "_if"
+      "name": "if"
     },
     {
       "type": "SYMBOL",
-      "name": "_then"
+      "name": "then"
     },
     {
       "type": "SYMBOL",
-      "name": "_else"
+      "name": "else"
     },
     {
       "type": "SYMBOL",
-      "name": "_let"
+      "name": "let"
     },
     {
       "type": "SYMBOL",
-      "name": "_in"
+      "name": "in"
     },
     {
       "type": "SYMBOL",
-      "name": "_compose"
+      "name": "compose"
     },
     {
       "type": "SYMBOL",
-      "name": "_bind"
+      "name": "bind"
     },
     {
       "type": "SYMBOL",
-      "name": "_true"
+      "name": "true"
     },
     {
       "type": "SYMBOL",
-      "name": "_false"
+      "name": "false"
     },
     {
       "type": "SYMBOL",
-      "name": "_where"
+      "name": "where"
     }
   ],
   "inline": [],

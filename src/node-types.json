@@ -149,12 +149,36 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "bind",
+          "named": true
+        }
+      ]
     }
   },
   {
     "type": "bool_literal",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "false",
+          "named": true
+        },
+        {
+          "type": "true",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "compose_block",
@@ -166,6 +190,10 @@
       "types": [
         {
           "type": "bind_statement",
+          "named": true
+        },
+        {
+          "type": "compose",
           "named": true
         },
         {
@@ -300,6 +328,10 @@
           {
             "type": "identifier",
             "named": true
+          },
+          {
+            "type": "operator",
+            "named": true
           }
         ]
       },
@@ -365,6 +397,28 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "colon_colon",
+          "named": true
+        },
+        {
+          "type": "def",
+          "named": true
+        },
+        {
+          "type": "equal",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -423,6 +477,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "arrow",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -507,6 +571,24 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "else",
+          "named": true
+        },
+        {
+          "type": "if",
+          "named": true
+        },
+        {
+          "type": "then",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -519,6 +601,10 @@
       "types": [
         {
           "type": "app_expression",
+          "named": true
+        },
+        {
+          "type": "operator",
           "named": true
         }
       ]
@@ -592,6 +678,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "arrow",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -688,6 +784,24 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "equal",
+          "named": true
+        },
+        {
+          "type": "in",
+          "named": true
+        },
+        {
+          "type": "let",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -758,6 +872,20 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "equal",
+          "named": true
+        },
+        {
+          "type": "let",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -891,6 +1019,20 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "bar",
+          "named": true
+        },
+        {
+          "type": "double_arrow",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -1068,6 +1210,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "colon",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -1110,6 +1262,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "colon",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -1122,6 +1284,10 @@
       "types": [
         {
           "type": "trait_constraint",
+          "named": true
+        },
+        {
+          "type": "where",
           "named": true
         }
       ]
@@ -1156,12 +1322,64 @@
     "named": false
   },
   {
+    "type": "arrow",
+    "named": true
+  },
+  {
+    "type": "bar",
+    "named": true
+  },
+  {
+    "type": "bind",
+    "named": true
+  },
+  {
+    "type": "colon",
+    "named": true
+  },
+  {
+    "type": "colon_colon",
+    "named": true
+  },
+  {
     "type": "comment",
     "named": true,
     "extra": true
   },
   {
+    "type": "compose",
+    "named": true
+  },
+  {
+    "type": "def",
+    "named": true
+  },
+  {
+    "type": "double_arrow",
+    "named": true
+  },
+  {
+    "type": "else",
+    "named": true
+  },
+  {
+    "type": "equal",
+    "named": true
+  },
+  {
+    "type": "false",
+    "named": true
+  },
+  {
     "type": "identifier",
+    "named": true
+  },
+  {
+    "type": "if",
+    "named": true
+  },
+  {
+    "type": "in",
     "named": true
   },
   {
@@ -1169,11 +1387,31 @@
     "named": true
   },
   {
+    "type": "let",
+    "named": true
+  },
+  {
+    "type": "operator",
+    "named": true
+  },
+  {
     "type": "string_literal",
     "named": true
   },
   {
+    "type": "then",
+    "named": true
+  },
+  {
+    "type": "true",
+    "named": true
+  },
+  {
     "type": "type_name",
+    "named": true
+  },
+  {
+    "type": "where",
     "named": true
   },
   {

@@ -11,24 +11,24 @@ module.exports = grammar({
     $._layout_start,
     $._layout_separator,
     $._layout_end,
-    $._operator,
-    $._def,
-    $._equal,
-    $._colon_colon,
-    $._arrow,
-    $._bar,
-    $._double_arrow,
-    $._colon,
-    $._if,
-    $._then,
-    $._else,
-    $._let,
-    $._in,
-    $._compose,
-    $._bind,
-    $._true,
-    $._false,
-    $._where,
+    $.operator,
+    $.def,
+    $.equal,
+    $.colon_colon,
+    $.arrow,
+    $.bar,
+    $.double_arrow,
+    $.colon,
+    $.if,
+    $.then,
+    $.else,
+    $.let,
+    $.in,
+    $.compose,
+    $.bind,
+    $.true,
+    $.false,
+    $.where,
   ],
 
   extras: $ => [
@@ -73,7 +73,7 @@ module.exports = grammar({
 
     string_literal: $ => /"([^"\\]|\\.)*"/,
 
-    bool_literal: $ => choice($._true, $._false),
+    bool_literal: $ => choice($.true, $.false),
 
     list_literal: $ => seq('[', commaSep($._expression), ']'),
 
@@ -84,21 +84,21 @@ module.exports = grammar({
       $.list_literal
     ),
 
-    kind: $ => sepBy1($._arrow, '*'),
+    kind: $ => sepBy1($.arrow, '*'),
 
     field_declaration: $ => seq(
       field('name', $.identifier),
-      $._colon_colon,
+      $.colon_colon,
       field('type', $._type)
     ),
 
     function_declaration: $ => seq(
-      $._def,
-      field('name', choice($.identifier, $._operator)),
+      $.def,
+      field('name', choice($.identifier, $.operator)),
       optional(field('parameters', $.parameter_list)),
       optional(choice(
-        seq($._colon_colon, field('type_signature', $._type)),
-        seq($._arrow, field('return_type', $._type))
+        seq($.colon_colon, field('type_signature', $._type)),
+        seq($.arrow, field('return_type', $._type))
       )),
       optional(field('constraints', $.where_clause)),
       $._function_body
@@ -112,29 +112,29 @@ module.exports = grammar({
 
     typed_parameter: $ => seq(
       field('name', $.identifier),
-      $._colon,
+      $.colon,
       field('type', $._type)
     ),
 
     _function_body: $ => choice(
-      seq($._equal, field('body', $._definition_rhs)),
+      seq($.equal, field('body', $._definition_rhs)),
       field('body', $.pattern_matching_body)
     ),
 
-    where_clause: $ => seq($._where, commaSep1($.trait_constraint)),
+    where_clause: $ => seq($.where, commaSep1($.trait_constraint)),
 
     trait_constraint: $ => seq(
       field('parameter', $.identifier),
-      $._colon,
+      $.colon,
       field('trait', $.type_name)
     ),
 
     pattern_matching_body: $ => statement_layout($, $.match_arm),
 
     match_arm: $ => seq(
-      $._bar,
+      $.bar,
       field('patterns', repeat1($._pattern)),
-      $._double_arrow,
+      $.double_arrow,
       field('body', $._expression)
     ),
 
@@ -161,7 +161,7 @@ module.exports = grammar({
 
     infix_expression: $ => seq(
       $.app_expression,
-      repeat(seq($._operator, $.app_expression))
+      repeat(seq($.operator, $.app_expression))
     ),
 
     parenthesized_expression: $ => seq('(', $._expression, ')'),
@@ -179,30 +179,30 @@ module.exports = grammar({
     lambda_expression: $ => seq(
       '\\',
       field('parameters', repeat1($._pattern)),
-      $._arrow,
+      $.arrow,
       field('body', $._expression)
     ),
 
     if_expression: $ => seq(
-      $._if,
+      $.if,
       field('condition', $._expression),
-      $._then,
+      $.then,
       field('consequence', $._expression),
-      $._else,
+      $.else,
       field('alternative', $._expression)
     ),
 
     let_expression: $ => seq(
-      $._let,
+      $.let,
       field('pattern', $._pattern),
-      $._equal,
+      $.equal,
       field('value', $._expression),
-      $._in,
+      $.in,
       field('body', $._definition_rhs)
     ),
 
     compose_block: $ => seq(
-      $._compose,
+      $.compose,
       statement_layout($, $._compose_statement)
     ),
 
@@ -213,16 +213,16 @@ module.exports = grammar({
     ),
 
     bind_statement: $ => seq(
-      $._bind,
+      $.bind,
       field('pattern', $._pattern),
       '<-',
       field('value', $._expression)
     ),
 
     let_statement: $ => seq(
-      $._let,
+      $.let,
       field('pattern', $._pattern),
-      $._equal,
+      $.equal,
       field('value', $._definition_rhs)
     ),
 
@@ -255,7 +255,7 @@ module.exports = grammar({
 
     function_type: $ => prec.right(PREC.arrow, seq(
       field('parameter', $._type),
-      $._arrow,
+      $.arrow,
       field('return', $._type)
     )),
 
