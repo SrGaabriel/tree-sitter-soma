@@ -32,16 +32,13 @@ module.exports = grammar({
     $.intrinsic,
   ],
 
-  extras: ($) => [$.comment, /[ \t\r\f]+/],
+  extras: ($) => [$.comment, /[ \n\t\r\f]+/],
 
   word: ($) => $.identifier,
 
   rules: {
     source_file: ($) =>
-      repeat(choice(
-        $._top_level_declaration,
-        $._layout_separator,
-      )),
+      repeat($._top_level_declaration),
 
     intrinsic_function: ($) => seq($.intrinsic, $.function_signature),
     function_signature: ($) =>
