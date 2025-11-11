@@ -82,14 +82,14 @@ static bool is_operator_char(int32_t c) {
          c == '~' || c == ':' || c == '.' || c == '$';
 }
 
-static inline bool isalnum_l(int c) {
+static inline bool isalnumreimpl(int c) {
     return ((c >= 'A' && c <= 'Z') ||
             (c >= 'a' && c <= 'z') ||
             (c >= '0' && c <= '9'));
 }
 
 static bool is_ident_char(int32_t c) {
-  return isalnum_l(c) || c == '_' || c == '\'';
+  return isalnumreimpl(c) || c == '_' || c == '\'';
 }
 
 
