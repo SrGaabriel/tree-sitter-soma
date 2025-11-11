@@ -474,6 +474,66 @@
     }
   },
   {
+    "type": "function_signature",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "operator",
+            "named": true
+          }
+        ]
+      },
+      "type_signature": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "function_type",
+            "named": true
+          },
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "list_type",
+            "named": true
+          },
+          {
+            "type": "parenthesized_type",
+            "named": true
+          },
+          {
+            "type": "type_name",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "colon_colon",
+          "named": true
+        },
+        {
+          "type": "def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "function_type",
     "named": true,
     "fields": {
@@ -657,6 +717,25 @@
         },
         {
           "type": "operator",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "intrinsic_function",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "function_signature",
+          "named": true
+        },
+        {
+          "type": "intrinsic",
           "named": true
         }
       ]
@@ -1234,6 +1313,10 @@
         {
           "type": "function_declaration",
           "named": true
+        },
+        {
+          "type": "intrinsic_function",
+          "named": true
         }
       ]
     }
@@ -1441,6 +1524,10 @@
   },
   {
     "type": "integer_literal",
+    "named": true
+  },
+  {
+    "type": "intrinsic",
     "named": true
   },
   {

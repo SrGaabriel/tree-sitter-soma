@@ -29,6 +29,7 @@ module.exports = grammar({
     $.true,
     $.false,
     $.where,
+    $.intrinsic,
   ],
 
   extras: ($) => [$.comment, /[ \t\r\f]+/],
@@ -37,17 +38,20 @@ module.exports = grammar({
 
   rules: {
     source_file: ($) =>
-      seq(
-        optional($._layout_separator),
-        optional(
-          seq(
-            $._top_level_declaration,
-            repeat(seq($._layout_separator, $._top_level_declaration)),
-          ),
-        ),
-        optional($._layout_separator),
-      ),
+      repeat(choice(
+        $._top_level_declaration,
+        $._layout_separator,
+      )),
 
+    intrinsic_function: ($) => seq($.intrinsic, $.function_signature),
+    function_signature: ($) =>
+      seq(
+        $.def,
+        field("name", choice($.identifier, $.operator)),
+        $.colon_colon,
+        field("type_signature", $._type),
+      ),
+    
     comment: ($) => token("//.*"),
 
     _block_expression: ($) =>
@@ -55,7 +59,8 @@ module.exports = grammar({
 
     _definition_rhs: ($) => choice($._expression, $._block_expression),
 
-    _top_level_declaration: ($) => choice($.function_declaration),
+    _top_level_declaration: ($) =>
+      choice($.function_declaration, $.intrinsic_function),
 
     identifier: ($) => /[a-z_][a-zA-Z0-9_']*/,
 
@@ -83,27 +88,27 @@ module.exports = grammar({
     field_declaration: ($) =>
       seq(field("name", $.identifier), $.colon_colon, field("type", $._type)),
 
-      function_declaration: ($) =>
-        seq(
-          $.def,
-          field("name", choice($.identifier, $.operator)),
-          optional(field("parameters", $.parameter_list)),
-          choice(
-            // Type signature style - only pattern matching allowed
-            seq(
-              $.colon_colon,
-              field("type_signature", $._type),
-              field("body", $.pattern_matching_body)
-            ),
-            // Equals style - only expressions allowed
-            seq(
-              optional(seq($.arrow, field("return_type", $._type))),
-              optional(field("constraints", $.where_clause)),
-              $.equal,
-              field("body", choice($._expression, $._block_expression))
-            )
-          )
+    function_declaration: ($) =>
+      seq(
+        $.def,
+        field("name", choice($.identifier, $.operator)),
+        optional(field("parameters", $.parameter_list)),
+        choice(
+          // Type signature style - only pattern matching allowed
+          seq(
+            $.colon_colon,
+            field("type_signature", $._type),
+            field("body", $.pattern_matching_body),
+          ),
+          // Equals style - only expressions allowed
+          seq(
+            optional(seq($.arrow, field("return_type", $._type))),
+            optional(field("constraints", $.where_clause)),
+            $.equal,
+            field("body", choice($._expression, $._block_expression)),
+          ),
         ),
+      ),
 
     parameter_list: ($) => seq("(", commaSep1($.typed_parameter), ")"),
 
@@ -153,11 +158,9 @@ module.exports = grammar({
         $.wildcard,
       ),
 
-    associative_expression: ($) => choice(
-      $.app_expression,
-      $._primary_expression,
-    ),
-      
+    associative_expression: ($) =>
+      choice($.app_expression, $._primary_expression),
+
     app_expression: ($) =>
       seq(
         field("function", $._primary_expression),
@@ -165,7 +168,10 @@ module.exports = grammar({
       ),
 
     infix_expression: ($) =>
-      seq($.associative_expression, repeat(seq($.operator, $.associative_expression))),
+      seq(
+        $.associative_expression,
+        repeat(seq($.operator, $.associative_expression)),
+      ),
 
     parenthesized_expression: ($) => seq("(", $._expression, ")"),
 

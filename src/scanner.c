@@ -40,6 +40,7 @@ typedef enum {
   TRUE,             // 18
   FALSE,            // 19
   WHERE,            // 20
+  INTRINSIC         // 21
 } Symbol;
 
 // ========================================
@@ -314,6 +315,11 @@ bool tree_sitter_soma_external_scanner_scan(
     }
     if (valid_symbols[WHERE] && match_keyword(ts_lexer, "where")) {
       ts_lexer->result_symbol = WHERE;
+      ts_lexer->mark_end(ts_lexer);
+      return true;
+    }
+    if (valid_symbols[INTRINSIC] && match_keyword(ts_lexer, "intrinsic")) {
+      ts_lexer->result_symbol = INTRINSIC;
       ts_lexer->mark_end(ts_lexer);
       return true;
     }

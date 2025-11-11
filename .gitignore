@@ -52,3 +52,4 @@ zig-out/
 # VSCode
 .vscode/
 
+log.html
