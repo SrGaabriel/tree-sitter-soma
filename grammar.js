@@ -35,7 +35,8 @@ module.exports = grammar({
     $.instance,
     $.import,
     $.lbraces,
-    $.rbraces
+    $.rbraces,
+    $.reverse_arrow
   ],
   extras: ($) => [$.comment, /[ \n\t\r\f]+/],
   word: ($) => $.identifier,
@@ -53,6 +54,7 @@ module.exports = grammar({
         $.colon_colon,
         field("type_signature", $.type),
       ),
+    
     data_type_declaration: ($) =>
       seq(
         $.data,
@@ -66,7 +68,7 @@ module.exports = grammar({
         $.constructor_declaration,
         repeat(statement_layout($, seq($.bar, $.constructor_declaration))),
       ),
-      
+
     intrinsic_data_type: ($) =>
       seq(
         $.intrinsic,
@@ -76,7 +78,7 @@ module.exports = grammar({
         field("kind", $.kind_declaration)
       ),
     kind_declaration: ($) => sepBy1($.arrow, "*"),
-    
+
     trait_declaration: ($) =>
       seq(
         $.trait,
@@ -90,7 +92,7 @@ module.exports = grammar({
         repeat1($.function_signature),
         $._layout_end,
       ),
-      
+
     instance_declaration: ($) =>
       seq(
         $.instance,
@@ -104,7 +106,7 @@ module.exports = grammar({
         repeat1($._top_level_declaration),
         $._layout_end,
       ),
-    
+
       import_declaration: ($) =>
         seq(
           $.import,
@@ -116,8 +118,8 @@ module.exports = grammar({
           )
         ),
     import_path: ($) => sepBy1("/", $.identifier),
-        
-      
+
+
     constructor_declaration: ($) =>
       choice(
         // Constructor with fields
@@ -174,22 +176,34 @@ module.exports = grammar({
         field("name", choice($.identifier, $.operator)),
         optional(field("parameters", $.parameter_list)),
         choice(
-          // Type signature style - only pattern matching allowed
+          // Pattern match
           seq(
             $.colon_colon,
             field("type_signature", $.type),
             field("body", $.pattern_matching_body),
           ),
-          // Equals style - only expressions allowed
+          // Imperative
           seq(
             optional(seq($.arrow, field("return_type", $.type))),
             optional(field("constraints", $.where_clause)),
             $.equal,
             field("body", choice($._expression, $._block_expression)),
           ),
+          // Constant
+          seq(
+            $.colon_colon,
+            field("type_signature", $.type),
+            $.equal,
+            field("body", choice($._expression, $._block_expression))
+          )
         ),
       ),
-    parameter_list: ($) => seq("(", commaSep1($.typed_parameter), ")"),
+    parameter_list: ($) => seq("(", commaSep1($.fn_parameter), ")"),
+    
+    fn_parameter : ($) => choice(
+      $.identifier,
+      $.typed_parameter
+    ),
     typed_parameter: ($) =>
       seq(field("name", $.identifier), $.colon, field("type", $.type)),
     _function_body: ($) =>

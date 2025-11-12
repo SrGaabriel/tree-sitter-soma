@@ -46,7 +46,8 @@ typedef enum {
   INSTANCE,         // 24
   USE,              // 25
   LBRACES,          // 26
-  RBRACES           // 27
+  RBRACES,          // 27
+  REVERSE_ARROW,    // 28
 } Symbol;
 
 // ========================================
@@ -435,6 +436,11 @@ bool tree_sitter_soma_external_scanner_scan(
     } else if (op_len == 1 && op_buf[0] == ':') {
       if (valid_symbols[COLON]) {
         ts_lexer->result_symbol = COLON;
+        return true;
+      }
+    } else if (op_len == 2 && op_buf[0] == '<' && op_buf[1] == '-') {
+      if (valid_symbols[REVERSE_ARROW]) {
+        ts_lexer->result_symbol = REVERSE_ARROW;
         return true;
       }
     } else if (valid_symbols[OPERATOR]) {

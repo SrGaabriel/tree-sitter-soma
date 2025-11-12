@@ -1,0 +1,11 @@
+def constant :: Int = 5
+
+def constant :: Int =
+    5
+
+def id(value) :: Int -> Int = value
+
+def id(value) :: Int -> Int =
+    value
+
+def id() :: Int = 5
