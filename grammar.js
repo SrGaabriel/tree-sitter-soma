@@ -77,7 +77,21 @@ module.exports = grammar({
         repeat1($.function_signature),
         $._layout_end,
       ),
-
+      
+    instance_declaration: ($) =>
+      seq(
+        $.instance,
+        field("trait", $.type_name),
+        field(
+          "type_parameters",
+          optional(repeat1(seq(optional($._layout_separator), $.type_name))),
+        ),
+        $.where,
+        $._layout_start,
+        repeat1($._top_level_declaration),
+        $._layout_end,
+      ),
+      
     constructor_declaration: ($) =>
       choice(
         // Constructor with fields
@@ -100,6 +114,7 @@ module.exports = grammar({
         $.intrinsic_function,
         $.data_type_declaration,
         $.trait_declaration,
+        $.instance_declaration,
       ),
     identifier: ($) => /[a-z_][a-zA-Z0-9_']*/,
     type_name: ($) => /[A-Z][a-zA-Z0-9_']*/,

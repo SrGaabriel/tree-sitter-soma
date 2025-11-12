@@ -740,6 +740,66 @@
     }
   },
   {
+    "type": "instance_declaration",
+    "named": true,
+    "fields": {
+      "trait": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "type_name",
+            "named": true
+          }
+        ]
+      },
+      "type_parameters": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "type_name",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "data_type_declaration",
+          "named": true
+        },
+        {
+          "type": "function_declaration",
+          "named": true
+        },
+        {
+          "type": "instance",
+          "named": true
+        },
+        {
+          "type": "instance_declaration",
+          "named": true
+        },
+        {
+          "type": "intrinsic_function",
+          "named": true
+        },
+        {
+          "type": "trait_declaration",
+          "named": true
+        },
+        {
+          "type": "where",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "intrinsic_function",
     "named": true,
     "fields": {},
@@ -1304,6 +1364,10 @@
           "named": true
         },
         {
+          "type": "instance_declaration",
+          "named": true
+        },
+        {
           "type": "intrinsic_function",
           "named": true
         },
@@ -1576,6 +1640,10 @@
   },
   {
     "type": "in",
+    "named": true
+  },
+  {
+    "type": "instance",
     "named": true
   },
   {
