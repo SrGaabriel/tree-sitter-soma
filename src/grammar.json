@@ -217,6 +217,64 @@
         }
       ]
     },
+    "intrinsic_data_type": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "intrinsic"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "data"
+        },
+        {
+          "type": "FIELD",
+          "name": "name",
+          "content": {
+            "type": "SYMBOL",
+            "name": "type_name"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "colon_colon"
+        },
+        {
+          "type": "FIELD",
+          "name": "kind",
+          "content": {
+            "type": "SYMBOL",
+            "name": "kind_declaration"
+          }
+        }
+      ]
+    },
+    "kind_declaration": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "*"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "arrow"
+              },
+              {
+                "type": "STRING",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      ]
+    },
     "trait_declaration": {
       "type": "SEQ",
       "members": [
@@ -663,6 +721,10 @@
         {
           "type": "SYMBOL",
           "name": "import_declaration"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "intrinsic_data_type"
         }
       ]
     },

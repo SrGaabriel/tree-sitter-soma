@@ -66,6 +66,16 @@ module.exports = grammar({
         $.constructor_declaration,
         repeat(statement_layout($, seq($.bar, $.constructor_declaration))),
       ),
+      
+    intrinsic_data_type: ($) =>
+      seq(
+        $.intrinsic,
+        $.data,
+        field("name", $.type_name),
+        $.colon_colon,
+        field("kind", $.kind_declaration)
+      ),
+    kind_declaration: ($) => sepBy1($.arrow, "*"),
     
     trait_declaration: ($) =>
       seq(
@@ -139,6 +149,7 @@ module.exports = grammar({
         $.trait_declaration,
         $.instance_declaration,
         $.import_declaration,
+        $.intrinsic_data_type
       ),
     identifier: ($) => /[a-z_][a-zA-Z0-9_']*/,
     type_name: ($) => /[A-Z][a-zA-Z0-9_']*/,

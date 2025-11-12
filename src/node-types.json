@@ -846,6 +846,10 @@
           "named": true
         },
         {
+          "type": "intrinsic_data_type",
+          "named": true
+        },
+        {
           "type": "intrinsic_function",
           "named": true
         },
@@ -855,6 +859,50 @@
         },
         {
           "type": "where",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "intrinsic_data_type",
+    "named": true,
+    "fields": {
+      "kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "kind_declaration",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "type_name",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "colon_colon",
+          "named": true
+        },
+        {
+          "type": "data",
+          "named": true
+        },
+        {
+          "type": "intrinsic",
           "named": true
         }
       ]
@@ -874,6 +922,21 @@
         },
         {
           "type": "intrinsic",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "kind_declaration",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "arrow",
           "named": true
         }
       ]
@@ -1430,6 +1493,10 @@
         },
         {
           "type": "instance_declaration",
+          "named": true
+        },
+        {
+          "type": "intrinsic_data_type",
           "named": true
         },
         {
