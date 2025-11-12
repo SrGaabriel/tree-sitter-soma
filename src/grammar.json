@@ -461,8 +461,17 @@
     "comment": {
       "type": "TOKEN",
       "content": {
-        "type": "STRING",
-        "value": "//.*"
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "PATTERN",
+            "value": "\\/\\/[^\\n]*"
+          },
+          {
+            "type": "PATTERN",
+            "value": "\\/\\*[\\s\\S]*?\\*\\/"
+          }
+        ]
       }
     },
     "_block_expression": {

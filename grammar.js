@@ -104,7 +104,13 @@ module.exports = grammar({
       ),
 
     constructor_field: ($) => seq($.identifier, $.colon_colon, $.type),
-    comment: ($) => token("//.*"),
+    comment: ($) =>
+      token(
+        choice(
+          /\/\/[^\n]*/,         // single-line: // comment
+          /\/\*[\s\S]*?\*\//    // multi-line: /* comment */
+        )
+      ),
     _block_expression: ($) =>
       seq($._layout_start, $._expression, $._layout_end),
     _definition_rhs: ($) => choice($._expression, $._block_expression),

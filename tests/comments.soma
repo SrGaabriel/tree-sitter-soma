@@ -1,0 +1,6 @@
+// Hello, World!
+// 
+// def sum(x: Int, y: Int) -> Int = x + y
+
+/* This is a block comment
+   that spans multiple lines */
