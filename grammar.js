@@ -6,7 +6,9 @@ const PREC = {
 
 module.exports = grammar({
   name: "soma",
-  conflicts: ($) => [[$.constructor_declaration]],
+  conflicts: ($) => [
+    [$.constructor_declaration]
+  ],
   externals: ($) => [
     $._layout_start,
     $._layout_separator,
@@ -122,12 +124,10 @@ module.exports = grammar({
 
     constructor_declaration: ($) =>
       choice(
-        // Constructor with fields
         seq(
           field("name", $.constructor_name),
           field("fields", statement_layout($, $.constructor_field)),
         ),
-        // Constructor without fields
         field("name", $.constructor_name),
       ),
 
@@ -326,21 +326,28 @@ module.exports = grammar({
         ")",
       ),
     parenthesized_pattern: ($) => seq("(", $._pattern, ")"),
-    type: ($) =>
-      choice(
-        $.type_name,
-        $.identifier,
-        $.list_type,
-        $.function_type,
-        $.parenthesized_type,
-      ),
-    list_type: ($) => seq("[", field("element", $.type), "]"),
-    function_type: ($) =>
-      prec.right(
-        PREC.arrow,
-        seq(field("parameter", $.type), $.arrow, field("return", $.type)),
-      ),
-    parenthesized_type: ($) => seq("(", $.type, ")"),
+    simple_type: ($) => choice(
+      $.type_name,
+      $.identifier,
+      seq("[", field("element", $.type), "]"),
+      seq("(", $.type, ")")
+    ),
+    
+    application_type: ($) => prec.left(
+      PREC.apply,
+      seq(
+        field("constructor", $.simple_type),
+        repeat(field("argument", $.simple_type))
+      )
+    ),
+    type: ($) => prec.right(
+      PREC.arrow,
+      seq(
+        field("parameter", $.application_type),
+        optional(seq($.arrow, field("return", $.type)))
+      )
+    )
+    
   },
 });
 function statement_layout($, rule) {
