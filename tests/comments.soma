@@ -1,6 +1,11 @@
 // Hello, World!
+// a
+// dksnladas
 // 
-// def sum(x: Int, y: Int) -> Int = x + y
 
-/* This is a block comment
-   that spans multiple lines */
+/*
+Multi-line comment
+   Hello, World!
+*/
+
+def x(value: Int) -> Int = 5 // Hello, World!

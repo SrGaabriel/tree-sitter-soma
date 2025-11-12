@@ -96,6 +96,27 @@ static bool is_ident_char(int32_t c) {
   return isalnumreimpl(c) || c == '_' || c == '\'';
 }
 
+static void skip_line_comment(TSLexer *ts_lexer) {
+  // Assumes we've already seen and consumed '//'
+  while (ts_lexer->lookahead != '\n' && ts_lexer->lookahead != 0) {
+    ts_lexer->advance(ts_lexer, true);
+  }
+}
+
+static void skip_block_comment(TSLexer *ts_lexer) {
+  // Assumes we've already seen and consumed '/*'
+  while (ts_lexer->lookahead != 0) {
+    if (ts_lexer->lookahead == '*') {
+      ts_lexer->advance(ts_lexer, true);
+      if (ts_lexer->lookahead == '/') {
+        ts_lexer->advance(ts_lexer, true);
+        return;
+      }
+    } else {
+      ts_lexer->advance(ts_lexer, true);
+    }
+  }
+}
 
 static bool scan_operator_in_braces(TSLexer *ts_lexer) {
   if (ts_lexer->lookahead != '{') return false;
@@ -165,6 +186,7 @@ bool tree_sitter_soma_external_scanner_scan(
   const bool *valid_symbols
 ) {
   Scanner *scanner = (Scanner *)payload;
+  
   // Only handle LAYOUT_END during error recovery if we're at a newline
   // and actual indentation warrants it
   if (valid_symbols[LAYOUT_END] && scanner->indent_count > 1) {
@@ -178,12 +200,14 @@ bool tree_sitter_soma_external_scanner_scan(
     }
     // Otherwise fall through to normal processing
   }
+  
   // Skip Whitespace (but not newlines)
   while (ts_lexer->lookahead == ' ' ||
          ts_lexer->lookahead == '\t' ||
          ts_lexer->lookahead == '\r') {
     ts_lexer->advance(ts_lexer, true);
   }
+  
   // Handle EOF with pending dedents
   if (ts_lexer->lookahead == 0) {
     if (scanner->indent_count > 1 && valid_symbols[LAYOUT_END]) {
@@ -194,6 +218,7 @@ bool tree_sitter_soma_external_scanner_scan(
     }
     return false;
   }
+  
   // Handle pending dedents/indents first
   uint32_t current = current_indent(scanner);
   if (scanner->indent_computed) {
@@ -225,6 +250,7 @@ bool tree_sitter_soma_external_scanner_scan(
     }
     scanner->indent_computed = false;
   }
+  
   // Handle Newlines
   if (ts_lexer->lookahead == '\n') {
     ts_lexer->advance(ts_lexer, true);
@@ -264,6 +290,7 @@ bool tree_sitter_soma_external_scanner_scan(
     scanner->indent_computed = true;
     return tree_sitter_soma_external_scanner_scan(payload, ts_lexer, valid_symbols);
   }
+  
   // Keywords
   if (islower(ts_lexer->lookahead) || ts_lexer->lookahead == '_') {
     if (valid_symbols[DEF] && match_keyword(ts_lexer, "def")) {
@@ -344,8 +371,9 @@ bool tree_sitter_soma_external_scanner_scan(
     // If not keyword, fall through, grammar will handle identifier
     return false;
   }
-  // Operators and symbols
-  if (is_operator_char(ts_lexer->lookahead)) {
+  
+  // Operators and symbols (but not '/' which is handled above)
+  if (is_operator_char(ts_lexer->lookahead) && ts_lexer->lookahead != '/') {
     int32_t op_buf[32];
     uint32_t op_len = 0;
     op_buf[op_len++] = ts_lexer->lookahead;
@@ -355,6 +383,7 @@ bool tree_sitter_soma_external_scanner_scan(
       ts_lexer->advance(ts_lexer, false);
     }
     ts_lexer->mark_end(ts_lexer);
+    
     // Check for reserved
     if (op_len == 2 && op_buf[0] == '-' && op_buf[1] == '>') {
       if (valid_symbols[ARROW]) {
@@ -391,6 +420,7 @@ bool tree_sitter_soma_external_scanner_scan(
       return true;
     }
   }
+  
   // Braced operators
   if (valid_symbols[OPERATOR] && ts_lexer->lookahead == '{') {
     if (scan_operator_in_braces(ts_lexer)) {
@@ -398,5 +428,6 @@ bool tree_sitter_soma_external_scanner_scan(
       return true;
     }
   }
+  
   return false;
 }
