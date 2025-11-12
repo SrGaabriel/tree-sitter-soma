@@ -12,3 +12,9 @@ def main :: Maybe (Either Int a) -> Maybe (Either Int a) -> Maybe (Either Int a)
 def main :: a b = ""
 
 def equals :: Bool -> Bool -> Bool = true
+
+def genericEq :: a -> a -> Bool where a: Eq
+    | x y => equals x y
+
+def genericEqTest :: a -> a -> Bool where a: Eq
+    | x y => genericEq x y

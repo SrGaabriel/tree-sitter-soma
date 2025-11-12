@@ -54,7 +54,7 @@ module.exports = grammar({
         $.def,
         field("name", choice($.identifier, $.operator)),
         $.colon_colon,
-        field("type_signature", $.type),
+        field("type_signature", $.qualified_type),
       ),
     
     data_type_declaration: ($) =>
@@ -84,11 +84,7 @@ module.exports = grammar({
     trait_declaration: ($) =>
       seq(
         $.trait,
-        field("name", $.type_name),
-        field(
-          "type_parameters",
-          optional(repeat1(seq(optional($._layout_separator), $.identifier))),
-        ),
+        field("type", $.type),
         $.where,
         $._layout_start,
         repeat1($.function_signature),
@@ -98,11 +94,7 @@ module.exports = grammar({
     instance_declaration: ($) =>
       seq(
         $.instance,
-        field("trait", $.type_name),
-        field(
-          "type_parameters",
-          optional(repeat1(seq(optional($._layout_separator), $.type_name))),
-        ),
+        field("instance_type", $.type),
         $.where,
         $._layout_start,
         repeat1($._top_level_declaration),
@@ -179,20 +171,19 @@ module.exports = grammar({
           // Pattern match
           seq(
             $.colon_colon,
-            field("type_signature", $.type),
+            field("type_signature", $.qualified_type),
             field("body", $.pattern_matching_body),
           ),
           // Imperative
           seq(
             optional(seq($.arrow, field("return_type", $.type))),
-            optional(field("constraints", $.where_clause)),
             $.equal,
             field("body", choice($._expression, $._block_expression)),
           ),
           // Constant
           seq(
             $.colon_colon,
-            field("type_signature", $.type),
+            field("type_signature", $.qualified_type),
             $.equal,
             field("body", choice($._expression, $._block_expression))
           )
@@ -330,7 +321,7 @@ module.exports = grammar({
       $.type_name,
       $.identifier,
       seq("[", field("element", $.type), "]"),
-      seq("(", $.type, ")")
+      seq("(", choice($.type, commaSep($.type)), ")")
     ),
     
     application_type: ($) => prec.left(
@@ -346,8 +337,12 @@ module.exports = grammar({
         field("parameter", $.application_type),
         optional(seq($.arrow, field("return", $.type)))
       )
-    )
-    
+    ),
+    qualified_type: ($) =>
+      seq(
+        $.type,
+        optional($.where_clause)
+    ),
   },
 });
 function statement_layout($, rule) {

@@ -505,16 +505,6 @@
           }
         ]
       },
-      "constraints": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "where_clause",
-            "named": true
-          }
-        ]
-      },
       "name": {
         "multiple": false,
         "required": true,
@@ -554,7 +544,7 @@
         "required": false,
         "types": [
           {
-            "type": "type",
+            "type": "qualified_type",
             "named": true
           }
         ]
@@ -606,7 +596,7 @@
         "required": true,
         "types": [
           {
-            "type": "type",
+            "type": "qualified_type",
             "named": true
           }
         ]
@@ -809,22 +799,12 @@
     "type": "instance_declaration",
     "named": true,
     "fields": {
-      "trait": {
+      "instance_type": {
         "multiple": false,
         "required": true,
         "types": [
           {
-            "type": "type_name",
-            "named": true
-          }
-        ]
-      },
-      "type_parameters": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "type_name",
+            "type": "type",
             "named": true
           }
         ]
@@ -1449,6 +1429,25 @@
     }
   },
   {
+    "type": "qualified_type",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "type",
+          "named": true
+        },
+        {
+          "type": "where_clause",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "simple_type",
     "named": true,
     "fields": {
@@ -1464,7 +1463,7 @@
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": false,
       "types": [
         {
@@ -1562,22 +1561,12 @@
     "type": "trait_declaration",
     "named": true,
     "fields": {
-      "name": {
+      "type": {
         "multiple": false,
         "required": true,
         "types": [
           {
-            "type": "type_name",
-            "named": true
-          }
-        ]
-      },
-      "type_parameters": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "identifier",
+            "type": "type",
             "named": true
           }
         ]
