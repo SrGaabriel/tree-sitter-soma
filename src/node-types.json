@@ -1306,6 +1306,10 @@
         {
           "type": "intrinsic_function",
           "named": true
+        },
+        {
+          "type": "trait_declaration",
+          "named": true
         }
       ]
     }
@@ -1341,6 +1345,50 @@
       "types": [
         {
           "type": "colon",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "trait_declaration",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "type_name",
+            "named": true
+          }
+        ]
+      },
+      "type_parameters": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "function_signature",
+          "named": true
+        },
+        {
+          "type": "trait",
+          "named": true
+        },
+        {
+          "type": "where",
           "named": true
         }
       ]
@@ -1552,6 +1600,10 @@
   },
   {
     "type": "then",
+    "named": true
+  },
+  {
+    "type": "trait",
     "named": true
   },
   {

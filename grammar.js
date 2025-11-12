@@ -63,6 +63,20 @@ module.exports = grammar({
         $.constructor_declaration,
         repeat(statement_layout($, seq($.bar, $.constructor_declaration))),
       ),
+    
+    trait_declaration: ($) =>
+      seq(
+        $.trait,
+        field("name", $.type_name),
+        field(
+          "type_parameters",
+          optional(repeat1(seq(optional($._layout_separator), $.identifier))),
+        ),
+        $.where,
+        $._layout_start,
+        repeat1($.function_signature),
+        $._layout_end,
+      ),
 
     constructor_declaration: ($) =>
       choice(
@@ -85,6 +99,7 @@ module.exports = grammar({
         $.function_declaration,
         $.intrinsic_function,
         $.data_type_declaration,
+        $.trait_declaration,
       ),
     identifier: ($) => /[a-z_][a-zA-Z0-9_']*/,
     type_name: ($) => /[A-Z][a-zA-Z0-9_']*/,
