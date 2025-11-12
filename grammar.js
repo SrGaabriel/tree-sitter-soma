@@ -245,7 +245,7 @@ module.exports = grammar({
         $.associative_expression,
         repeat(seq($.operator, $.associative_expression)),
       ),
-    parenthesized_expression: ($) => seq("(", $._expression, ")"),
+    parenthesized_expression: ($) => seq("(", commaSep($._expression), ")"),
     wildcard: ($) => "_",
     _apply_expression: ($) =>
       choice(
