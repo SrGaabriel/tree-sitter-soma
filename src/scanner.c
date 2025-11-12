@@ -40,7 +40,10 @@ typedef enum {
   TRUE,             // 18
   FALSE,            // 19
   WHERE,            // 20
-  INTRINSIC         // 21
+  INTRINSIC,        // 21
+  DATA,             // 22
+  TRAIT,            // 23
+  INSTANCE,         // 24
 } Symbol;
 
 // ========================================
@@ -165,7 +168,7 @@ bool tree_sitter_soma_external_scanner_scan(
   // Only handle LAYOUT_END during error recovery if we're at a newline
   // and actual indentation warrants it
   if (valid_symbols[LAYOUT_END] && scanner->indent_count > 1) {
-    // Don't emit LAYOUT_END unless we've actually computed 
+    // Don't emit LAYOUT_END unless we've actually computed
     // a dedent from newline processing
     if (scanner->indent_computed && scanner->expected_indent < current_indent(scanner)) {
       pop_indent(scanner);
@@ -320,6 +323,21 @@ bool tree_sitter_soma_external_scanner_scan(
     }
     if (valid_symbols[INTRINSIC] && match_keyword(ts_lexer, "intrinsic")) {
       ts_lexer->result_symbol = INTRINSIC;
+      ts_lexer->mark_end(ts_lexer);
+      return true;
+    }
+    if (valid_symbols[DATA] && match_keyword(ts_lexer, "data")) {
+      ts_lexer->result_symbol = DATA;
+      ts_lexer->mark_end(ts_lexer);
+      return true;
+    }
+    if (valid_symbols[TRAIT] && match_keyword(ts_lexer, "trait")) {
+      ts_lexer->result_symbol = TRAIT;
+      ts_lexer->mark_end(ts_lexer);
+      return true;
+    }
+    if (valid_symbols[INSTANCE] && match_keyword(ts_lexer, "instance")) {
+      ts_lexer->result_symbol = INSTANCE;
       ts_lexer->mark_end(ts_lexer);
       return true;
     }

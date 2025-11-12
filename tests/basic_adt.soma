@@ -3,19 +3,23 @@ data Optional
         value :: Int
         debug :: String
     | Nothing
+
 data Shape
     = Square
         length :: Int
     | Circle
         radius :: Int
+
 data Maybe a
     = Just
         value :: a
     | Nothing
+
 data Option a
     = Some
         value :: a
     | None
+
 data Either l r
     = Left
         error :: l
