@@ -1,7 +1,5 @@
-// This file combines all syntax elements from core.soma, llvm.soma, app.soma, and test_zero_overhead.soma
-// to create a comprehensive test case for a soma parser.
 use stdlib.{id, Optional, Some}
-// Intrinsic data and defs
+
 intrinsic data IO :: * -> *
 intrinsic data Ref :: * -> *
 intrinsic def {+} :: Int -> Int -> Int
