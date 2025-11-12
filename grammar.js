@@ -33,6 +33,9 @@ module.exports = grammar({
     $.data,
     $.trait,
     $.instance,
+    $.import,
+    $.lbraces,
+    $.rbraces
   ],
   extras: ($) => [$.comment, /[ \n\t\r\f]+/],
   word: ($) => $.identifier,
@@ -91,6 +94,19 @@ module.exports = grammar({
         repeat1($._top_level_declaration),
         $._layout_end,
       ),
+    
+      import_declaration: ($) =>
+        seq(
+          $.import,
+          field("module", $.import_path),
+          ".",
+          choice(
+            seq($.lbraces, commaSep1(choice($.identifier, $.type_name)), $.rbraces),
+            "*"
+          )
+        ),
+    import_path: ($) => sepBy1("/", $.identifier),
+        
       
     constructor_declaration: ($) =>
       choice(
@@ -122,6 +138,7 @@ module.exports = grammar({
         $.data_type_declaration,
         $.trait_declaration,
         $.instance_declaration,
+        $.import_declaration,
       ),
     identifier: ($) => /[a-z_][a-zA-Z0-9_']*/,
     type_name: ($) => /[A-Z][a-zA-Z0-9_']*/,

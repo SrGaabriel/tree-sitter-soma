@@ -721,6 +721,63 @@
     }
   },
   {
+    "type": "import_declaration",
+    "named": true,
+    "fields": {
+      "module": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "import_path",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "import",
+          "named": true
+        },
+        {
+          "type": "lbraces",
+          "named": true
+        },
+        {
+          "type": "rbraces",
+          "named": true
+        },
+        {
+          "type": "type_name",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "import_path",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "infix_expression",
     "named": true,
     "fields": {},
@@ -774,6 +831,10 @@
         },
         {
           "type": "function_declaration",
+          "named": true
+        },
+        {
+          "type": "import_declaration",
           "named": true
         },
         {
@@ -1364,6 +1425,10 @@
           "named": true
         },
         {
+          "type": "import_declaration",
+          "named": true
+        },
+        {
           "type": "instance_declaration",
           "named": true
         },
@@ -1558,7 +1623,19 @@
     "named": false
   },
   {
+    "type": "*",
+    "named": false
+  },
+  {
     "type": ",",
+    "named": false
+  },
+  {
+    "type": ".",
+    "named": false
+  },
+  {
+    "type": "/",
     "named": false
   },
   {
@@ -1639,6 +1716,10 @@
     "named": true
   },
   {
+    "type": "import",
+    "named": true
+  },
+  {
     "type": "in",
     "named": true
   },
@@ -1655,11 +1736,19 @@
     "named": true
   },
   {
+    "type": "lbraces",
+    "named": true
+  },
+  {
     "type": "let",
     "named": true
   },
   {
     "type": "operator",
+    "named": true
+  },
+  {
+    "type": "rbraces",
     "named": true
   },
   {

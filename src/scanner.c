@@ -44,6 +44,9 @@ typedef enum {
   DATA,             // 22
   TRAIT,            // 23
   INSTANCE,         // 24
+  USE,              // 25
+  LBRACES,          // 26
+  RBRACES           // 27
 } Symbol;
 
 // ========================================
@@ -368,8 +371,27 @@ bool tree_sitter_soma_external_scanner_scan(
       ts_lexer->mark_end(ts_lexer);
       return true;
     }
+    if (valid_symbols[USE] && match_keyword(ts_lexer, "use")) {
+      ts_lexer->result_symbol = USE;
+      ts_lexer->mark_end(ts_lexer);
+      return true;
+    }
     // If not keyword, fall through, grammar will handle identifier
     return false;
+  }
+  
+  // Braces
+  if (ts_lexer->lookahead == '{' && valid_symbols[LBRACES]) {
+    ts_lexer->advance(ts_lexer, false);
+    ts_lexer->mark_end(ts_lexer);
+    ts_lexer->result_symbol = LBRACES;
+    return true;
+  }
+  if (ts_lexer->lookahead == '}' && valid_symbols[RBRACES]) {
+      ts_lexer->advance(ts_lexer, false);
+      ts_lexer->mark_end(ts_lexer);
+      ts_lexer->result_symbol = RBRACES;
+      return true;
   }
   
   // Operators and symbols (but not '/' which is handled above)
