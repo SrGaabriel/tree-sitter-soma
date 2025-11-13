@@ -36,8 +36,6 @@ module.exports = grammar({
     $.trait,
     $.instance,
     $.import,
-    $.lbraces,
-    $.rbraces,
     $.reverse_arrow
   ],
   extras: ($) => [$.comment, /[ \n\t\r\f]+/],
@@ -107,7 +105,7 @@ module.exports = grammar({
           field("module", $.import_path),
           ".",
           choice(
-            seq($.lbraces, commaSep1(choice($.identifier, $.type_name)), $.rbraces),
+            seq("{", commaSep1(choice($.identifier, $.type_name)), "}"),
             "*"
           )
         ),

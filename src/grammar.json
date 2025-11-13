@@ -373,8 +373,8 @@
               "type": "SEQ",
               "members": [
                 {
-                  "type": "SYMBOL",
-                  "name": "lbraces"
+                  "type": "STRING",
+                  "value": "{"
                 },
                 {
                   "type": "SEQ",
@@ -420,8 +420,8 @@
                   ]
                 },
                 {
-                  "type": "SYMBOL",
-                  "name": "rbraces"
+                  "type": "STRING",
+                  "value": "}"
                 }
               ]
             },
@@ -2033,14 +2033,6 @@
     {
       "type": "SYMBOL",
       "name": "import"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "lbraces"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "rbraces"
     },
     {
       "type": "SYMBOL",

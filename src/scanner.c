@@ -46,8 +46,6 @@ typedef enum {
   TRAIT,
   INSTANCE,
   USE,
-  LBRACES,
-  RBRACES,
   REVERSE_ARROW,
 } Symbol;
 // ========================================
@@ -297,19 +295,6 @@ bool tree_sitter_soma_external_scanner_scan(void *payload, TSLexer *ts_lexer, co
         return true;
       }
       return false;
-    }
-    // Braces
-    if (ts_lexer->lookahead == '{' && valid_symbols[LBRACES]) {
-      ts_lexer->advance(ts_lexer, false);
-      ts_lexer->mark_end(ts_lexer);
-      ts_lexer->result_symbol = LBRACES;
-      return true;
-    }
-    if (ts_lexer->lookahead == '}' && valid_symbols[RBRACES]) {
-      ts_lexer->advance(ts_lexer, false);
-      ts_lexer->mark_end(ts_lexer);
-      ts_lexer->result_symbol = RBRACES;
-      return true;
     }
     // Operators and symbols
     if (is_operator_char(ts_lexer->lookahead)) {

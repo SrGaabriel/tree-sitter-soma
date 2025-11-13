@@ -747,14 +747,6 @@
           "named": true
         },
         {
-          "type": "lbraces",
-          "named": true
-        },
-        {
-          "type": "rbraces",
-          "named": true
-        },
-        {
           "type": "type_name",
           "named": true
         }
@@ -1809,19 +1801,11 @@
     "named": true
   },
   {
-    "type": "lbraces",
-    "named": true
-  },
-  {
     "type": "let",
     "named": true
   },
   {
     "type": "operator",
-    "named": true
-  },
-  {
-    "type": "rbraces",
     "named": true
   },
   {
@@ -1847,5 +1831,13 @@
   {
     "type": "wildcard",
     "named": true
+  },
+  {
+    "type": "{",
+    "named": false
+  },
+  {
+    "type": "}",
+    "named": false
   }
 ]
