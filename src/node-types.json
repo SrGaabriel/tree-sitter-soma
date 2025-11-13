@@ -1569,15 +1569,59 @@
       "required": true,
       "types": [
         {
-          "type": "function_signature",
-          "named": true
-        },
-        {
           "type": "trait",
           "named": true
         },
         {
+          "type": "trait_function_signature",
+          "named": true
+        },
+        {
           "type": "where",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "trait_function_signature",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "operator",
+            "named": true
+          }
+        ]
+      },
+      "type_signature": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_type",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "colon_colon",
+          "named": true
+        },
+        {
+          "type": "def",
           "named": true
         }
       ]

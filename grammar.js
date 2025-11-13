@@ -85,7 +85,7 @@ module.exports = grammar({
         field("type", $.type),
         $.where,
         $._layout_start,
-        repeat1($.function_signature),
+        repeat1(alias($.function_signature, $.trait_function_signature)),
         $._layout_end,
       ),
 
@@ -110,7 +110,6 @@ module.exports = grammar({
           )
         ),
     import_path: ($) => sepBy1("/", $.identifier),
-
 
     constructor_declaration: ($) =>
       choice(

@@ -301,8 +301,13 @@
         {
           "type": "REPEAT1",
           "content": {
-            "type": "SYMBOL",
-            "name": "function_signature"
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "function_signature"
+            },
+            "named": true,
+            "value": "trait_function_signature"
           }
         },
         {
