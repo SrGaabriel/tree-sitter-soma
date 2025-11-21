@@ -137,14 +137,6 @@
           ]
         },
         {
-          "type": "SYMBOL",
-          "name": "equal"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "constructor_declaration"
-        },
-        {
           "type": "REPEAT",
           "content": {
             "type": "SEQ",
@@ -1928,11 +1920,7 @@
       "value": "[ \\n\\t\\r\\f]+"
     }
   ],
-  "conflicts": [
-    [
-      "constructor_declaration"
-    ]
-  ],
+  "conflicts": [],
   "precedences": [],
   "externals": [
     {

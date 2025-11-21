@@ -1,27 +1,27 @@
 data Optional
-    = Some
+    | Some
         value :: Int
         debug :: String
     | Nothing
 
 data Shape
-    = Square
+    | Square
         length :: Int
     | Circle
         radius :: Int
 
 data Maybe a
-    = Just
+    | Just
         value :: a
     | Nothing
 
 data Option a
-    = Some
+    | Some
         value :: a
     | None
 
 data Either l r
-    = Left
+    | Left
         error :: l
     | Right
         value :: r

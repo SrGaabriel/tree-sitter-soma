@@ -6,9 +6,6 @@ const PREC = {
 
 module.exports = grammar({
   name: "soma",
-  conflicts: ($) => [
-    [$.constructor_declaration]
-  ],
   externals: ($) => [
     $._layout_start,
     $._layout_separator,
@@ -64,8 +61,6 @@ module.exports = grammar({
           optional(repeat1(seq(optional($._layout_separator), $.identifier))),
         ),
         optional($._layout_separator),
-        $.equal,
-        $.constructor_declaration,
         repeat(statement_layout($, seq($.bar, $.constructor_declaration))),
       ),
 

@@ -444,10 +444,6 @@
         {
           "type": "data",
           "named": true
-        },
-        {
-          "type": "equal",
-          "named": true
         }
       ]
     }
