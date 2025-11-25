@@ -329,7 +329,10 @@ module.exports = grammar({
           optional(seq($.arrow, field("return", $.type))),
         ),
       ),
-    qualified_type: ($) => seq($.type, optional($.with_clause)),
+    qualified_type: ($) => seq(
+      field("qualified_type_head", $.type),
+      optional($.with_clause)
+    ),
   },
 });
 function statement_layout($, rule) {

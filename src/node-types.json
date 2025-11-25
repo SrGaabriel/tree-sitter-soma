@@ -1419,15 +1419,22 @@
   {
     "type": "qualified_type",
     "named": true,
-    "fields": {},
+    "fields": {
+      "qualified_type_head": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "type",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
-      "multiple": true,
-      "required": true,
+      "multiple": false,
+      "required": false,
       "types": [
-        {
-          "type": "type",
-          "named": true
-        },
         {
           "type": "with_clause",
           "named": true
