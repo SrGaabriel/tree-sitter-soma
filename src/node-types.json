@@ -366,7 +366,7 @@
       },
       "fields": {
         "multiple": true,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "bool_literal",
@@ -1429,7 +1429,7 @@
           "named": true
         },
         {
-          "type": "where_clause",
+          "type": "with_clause",
           "named": true
         }
       ]
@@ -1504,42 +1504,6 @@
         },
         {
           "type": "trait_declaration",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "trait_constraint",
-    "named": true,
-    "fields": {
-      "parameter": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "identifier",
-            "named": true
-          }
-        ]
-      },
-      "trait": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "type_name",
-            "named": true
-          }
-        ]
-      }
-    },
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "colon",
           "named": true
         }
       ]
@@ -1701,7 +1665,7 @@
     }
   },
   {
-    "type": "where_clause",
+    "type": "with_clause",
     "named": true,
     "fields": {},
     "children": {
@@ -1709,11 +1673,11 @@
       "required": true,
       "types": [
         {
-          "type": "trait_constraint",
+          "type": "application_type",
           "named": true
         },
         {
-          "type": "where",
+          "type": "with",
           "named": true
         }
       ]
@@ -1870,6 +1834,10 @@
   },
   {
     "type": "wildcard",
+    "named": true
+  },
+  {
+    "type": "with",
     "named": true
   },
   {

@@ -1070,19 +1070,19 @@
         }
       ]
     },
-    "where_clause": {
+    "with_clause": {
       "type": "SEQ",
       "members": [
         {
           "type": "SYMBOL",
-          "name": "where"
+          "name": "with"
         },
         {
           "type": "SEQ",
           "members": [
             {
               "type": "SYMBOL",
-              "name": "trait_constraint"
+              "name": "application_type"
             },
             {
               "type": "REPEAT",
@@ -1095,7 +1095,7 @@
                   },
                   {
                     "type": "SYMBOL",
-                    "name": "trait_constraint"
+                    "name": "application_type"
                   }
                 ]
               }
@@ -1699,7 +1699,7 @@
           "type": "FIELD",
           "name": "fields",
           "content": {
-            "type": "REPEAT1",
+            "type": "REPEAT",
             "content": {
               "type": "SYMBOL",
               "name": "_pattern"
@@ -1900,7 +1900,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "where_clause"
+              "name": "with_clause"
             },
             {
               "type": "BLANK"
@@ -2006,6 +2006,10 @@
     {
       "type": "SYMBOL",
       "name": "where"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "with"
     },
     {
       "type": "SYMBOL",

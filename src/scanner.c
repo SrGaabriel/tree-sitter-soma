@@ -41,6 +41,7 @@ typedef enum {
   TRUE,
   FALSE,
   WHERE,
+  WITH,
   INTRINSIC,
   DATA,
   TRAIT,
@@ -266,6 +267,11 @@ bool tree_sitter_soma_external_scanner_scan(void *payload, TSLexer *ts_lexer, co
       }
       if (valid_symbols[WHERE] && match_keyword(ts_lexer, "where")) {
         ts_lexer->result_symbol = WHERE;
+        ts_lexer->mark_end(ts_lexer);
+        return true;
+      }
+      if (valid_symbols[WITH] && match_keyword(ts_lexer, "with")) {
+        ts_lexer->result_symbol = WITH;
         ts_lexer->mark_end(ts_lexer);
         return true;
       }

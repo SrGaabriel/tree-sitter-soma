@@ -1,0 +1,13 @@
+
+trait Traversable t with (Functor t, Foldable t) where
+    def traverse :: (a -> f b) -> t a -> f (t b) with Applicative f
+    def sequenceA :: t (f a) -> f (t a) with (Applicative f)
+
+trait Foldable t with (Monoid m) where
+    def foldMap :: (a -> m) -> t a -> m
+    def fold :: t m -> m
+
+instance Functor Maybe where
+    def fmap :: (a -> b) -> Maybe a -> Maybe b
+        | (Just v) => Just (fmap v)
+        | (Nothing) => Nothing

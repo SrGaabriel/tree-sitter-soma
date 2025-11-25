@@ -13,8 +13,8 @@ def main :: a b = ""
 
 def equals :: Bool -> Bool -> Bool = true
 
-def genericEq :: a -> a -> Bool where a: Eq
+def genericEq :: a -> a -> Bool with Eq a
     | x y => equals x y
 
-def genericEqTest :: a -> a -> Bool where a: Eq
+def genericEqTest :: a -> a -> Bool with Eq a
     | x y => genericEq x y

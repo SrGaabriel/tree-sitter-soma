@@ -7,7 +7,7 @@ intrinsic def {+} :: a -> a -> a
 intrinsic def {-} :: Int -> Int -> Int
 intrinsic def {==} :: a -> a -> Bool
 intrinsic def {==} :: Int -> Int -> Bool
-intrinsic def println :: a -> IO () where a: Display
+intrinsic def println :: a -> IO () with Display a
 intrinsic def map :: (a -> b) -> [a] -> [b]
 intrinsic def for :: (a -> ()) -> [a] -> ()
 intrinsic def debug :: String -> ()
@@ -80,9 +80,9 @@ def testOptionalEqGen :: Bool =
     let first = Some 5 in
     let second = pureOptionalInt 5 in
     equals first second
-def totallyGenericEqGen(left, right) :: a -> a -> Bool where a: Eq =
+def totallyGenericEqGen(left, right) :: a -> a -> Bool with Eq a =
     equals left right
-def testTotallyGenericEqGen(left, right) :: a -> a -> Bool where a: Eq =
+def testTotallyGenericEqGen(left, right) :: a -> a -> Bool with Eq a =
     totallyGenericEqGen left right
 def testTotallyGenericEqGenOptional(left: Optional, right: Optional) -> Bool =
     totallyGenericEqGen left right
@@ -99,9 +99,9 @@ def experimentChooseRight :: a -> b -> b
     | lhs rhs => rhs
 def testChoose :: a -> b -> b
     | lhs rhs => experimentChooseRight lhs rhs
-def genericEq :: a -> a -> Bool where a: Eq
+def genericEq :: a -> a -> Bool with Eq a
     | x y => equals x y
-def genericEqTest :: a -> a -> Bool where a: Eq
+def genericEqTest :: a -> a -> Bool with Eq a
     | x y => genericEq x y
 // Test functions from test_zero_overhead.soma
 def testStateMem2Reg :: Bool -> Int

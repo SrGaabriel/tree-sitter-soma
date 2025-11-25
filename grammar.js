@@ -28,6 +28,7 @@ module.exports = grammar({
     $.true,
     $.false,
     $.where,
+    $.with,
     $.intrinsic,
     $.data,
     $.trait,
@@ -194,7 +195,7 @@ module.exports = grammar({
         seq($.equal, field("body", $._definition_rhs)),
         field("body", $.pattern_matching_body),
       ),
-    where_clause: ($) => seq($.where, commaSep1($.trait_constraint)),
+    with_clause: ($) => seq($.with, commaSep1($.application_type)),
     trait_constraint: ($) =>
       seq(
         field("parameter", $.identifier),
@@ -305,7 +306,7 @@ module.exports = grammar({
       seq(
         "(",
         field("constructor", $.type_name),
-        field("fields", repeat1($._pattern)),
+        field("fields", repeat($._pattern)),
         ")",
       ),
     parenthesized_pattern: ($) => seq("(", $._pattern, ")"),
@@ -333,7 +334,7 @@ module.exports = grammar({
     qualified_type: ($) =>
       seq(
         $.type,
-        optional($.where_clause)
+        optional($.with_clause)
     ),
   },
 });
