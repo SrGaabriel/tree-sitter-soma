@@ -1518,7 +1518,7 @@
         "required": true,
         "types": [
           {
-            "type": "type",
+            "type": "qualified_type",
             "named": true
           }
         ]
@@ -1667,26 +1667,15 @@
   {
     "type": "with_clause",
     "named": true,
-    "fields": {
-      "trait_constraints": {
-        "multiple": true,
-        "required": true,
-        "types": [
-          {
-            "type": ",",
-            "named": false
-          },
-          {
-            "type": "application_type",
-            "named": true
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "application_type",
+          "named": true
+        },
         {
           "type": "with",
           "named": true

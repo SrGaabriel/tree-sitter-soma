@@ -279,7 +279,7 @@
           "name": "type",
           "content": {
             "type": "SYMBOL",
-            "name": "type"
+            "name": "qualified_type"
           }
         },
         {
@@ -1078,33 +1078,72 @@
           "name": "with"
         },
         {
-          "type": "FIELD",
-          "name": "trait_constraints",
-          "content": {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "application_type"
-              },
-              {
-                "type": "REPEAT",
-                "content": {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "application_type"
+                },
+                {
+                  "type": "REPEAT",
+                  "content": {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": ","
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "application_type"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "("
+                },
+                {
                   "type": "SEQ",
                   "members": [
                     {
-                      "type": "STRING",
-                      "value": ","
-                    },
-                    {
                       "type": "SYMBOL",
                       "name": "application_type"
+                    },
+                    {
+                      "type": "REPEAT",
+                      "content": {
+                        "type": "SEQ",
+                        "members": [
+                          {
+                            "type": "STRING",
+                            "value": ","
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "application_type"
+                          }
+                        ]
+                      }
                     }
                   ]
+                },
+                {
+                  "type": "STRING",
+                  "value": ")"
                 }
-              }
-            ]
-          }
+              ]
+            }
+          ]
         }
       ]
     },
