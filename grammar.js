@@ -78,7 +78,8 @@ module.exports = grammar({
     trait_declaration: ($) =>
       seq(
         $.trait,
-        field("type", $.qualified_type),
+        field("type", $.application_type),
+        optional($.with_clause),  
         $.where,
         $._layout_start,
         repeat1(alias($.function_signature, $.trait_function_signature)),
@@ -329,8 +330,9 @@ module.exports = grammar({
           optional(seq($.arrow, field("return", $.type))),
         ),
       ),
+    with: ($) => 'with',
     qualified_type: ($) => seq(
-      field("qualified_type_head", $.type),
+      $.type,
       optional($.with_clause)
     ),
   },

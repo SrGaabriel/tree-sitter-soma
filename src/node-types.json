@@ -1419,22 +1419,15 @@
   {
     "type": "qualified_type",
     "named": true,
-    "fields": {
-      "qualified_type_head": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "type",
-            "named": true
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
-      "multiple": false,
-      "required": false,
+      "multiple": true,
+      "required": true,
       "types": [
+        {
+          "type": "type",
+          "named": true
+        },
         {
           "type": "with_clause",
           "named": true
@@ -1525,7 +1518,7 @@
         "required": true,
         "types": [
           {
-            "type": "qualified_type",
+            "type": "application_type",
             "named": true
           }
         ]
@@ -1545,6 +1538,10 @@
         },
         {
           "type": "where",
+          "named": true
+        },
+        {
+          "type": "with_clause",
           "named": true
         }
       ]

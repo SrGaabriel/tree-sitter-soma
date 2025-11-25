@@ -279,8 +279,20 @@
           "name": "type",
           "content": {
             "type": "SYMBOL",
-            "name": "qualified_type"
+            "name": "application_type"
           }
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "with_clause"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         },
         {
           "type": "SYMBOL",
@@ -1906,16 +1918,16 @@
         ]
       }
     },
+    "with": {
+      "type": "STRING",
+      "value": "with"
+    },
     "qualified_type": {
       "type": "SEQ",
       "members": [
         {
-          "type": "FIELD",
-          "name": "qualified_type_head",
-          "content": {
-            "type": "SYMBOL",
-            "name": "type"
-          }
+          "type": "SYMBOL",
+          "name": "type"
         },
         {
           "type": "CHOICE",
