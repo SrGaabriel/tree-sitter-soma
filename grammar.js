@@ -195,8 +195,7 @@ module.exports = grammar({
         seq($.equal, field("body", $._definition_rhs)),
         field("body", $.pattern_matching_body),
       ),
-    with_clause: ($) => seq($.with, commaSep1($.application_type)),
-    trait_constraint: ($) => $.application_type,
+    with_clause: ($) => seq($.with, field("trait_constraints", commaSep1($.application_type))),
     pattern_matching_body: ($) => statement_layout($, $.match_arm),
     match_arm: ($) =>
       seq(
