@@ -1105,29 +1105,8 @@
       ]
     },
     "trait_constraint": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "FIELD",
-          "name": "parameter",
-          "content": {
-            "type": "SYMBOL",
-            "name": "identifier"
-          }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "colon"
-        },
-        {
-          "type": "FIELD",
-          "name": "trait",
-          "content": {
-            "type": "SYMBOL",
-            "name": "type_name"
-          }
-        }
-      ]
+      "type": "SYMBOL",
+      "name": "application_type"
     },
     "pattern_matching_body": {
       "type": "SEQ",
