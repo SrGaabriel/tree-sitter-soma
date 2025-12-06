@@ -225,12 +225,13 @@ module.exports = grammar({
       ),
     _primary_expression: ($) =>
       choice(
-        $.identifier,
+        $.variable,
         $.constructor_name,
         $._literal,
         $.parenthesized_expression,
         $.wildcard,
       ),
+    variable: ($) => $.identifier,
     associative_expression: ($) =>
       choice($.app_expression, $._primary_expression),
     app_expression: ($) =>

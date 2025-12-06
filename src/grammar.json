@@ -1320,7 +1320,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "identifier"
+          "name": "variable"
         },
         {
           "type": "SYMBOL",
@@ -1339,6 +1339,10 @@
           "name": "wildcard"
         }
       ]
+    },
+    "variable": {
+      "type": "SYMBOL",
+      "name": "identifier"
     },
     "associative_expression": {
       "type": "CHOICE",
