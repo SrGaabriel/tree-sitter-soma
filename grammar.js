@@ -55,6 +55,7 @@ module.exports = grammar({
 
     data_type_declaration: ($) =>
       seq(
+        optional($.attribute),
         $.data,
         field("name", $.type_name),
         field(
@@ -162,6 +163,7 @@ module.exports = grammar({
       seq(field("name", $.identifier), $.colon_colon, field("type", $.type)),
     function_declaration: ($) =>
       seq(
+        optional($.attribute),
         $.def,
         field("name", choice($.identifier, $.operator)),
         optional(field("parameters", $.parameter_list)),
@@ -342,6 +344,12 @@ module.exports = grammar({
       $.type,
       optional($.with_clause)
     ),
+    attribute: ($) => seq(
+      "@",
+      "[",
+      commaSep1($.identifier),
+      "]"
+    )
   },
 });
 function statement_layout($, rule) {
