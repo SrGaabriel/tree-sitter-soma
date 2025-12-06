@@ -94,3 +94,5 @@ instance Applicative IO with (Functor IO) where
         ioA >>= (\a -> ioB >>= (\b -> pureIO a))
 
 intrinsic instance Monad IO with (Applicative IO)
+
+def main(a: Int) -> Int = ""

@@ -439,16 +439,6 @@
             "named": true
           }
         ]
-      },
-      "type_parameters": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "identifier",
-            "named": true
-          }
-        ]
       }
     },
     "children": {
@@ -469,6 +459,10 @@
         },
         {
           "type": "data",
+          "named": true
+        },
+        {
+          "type": "type_parameters",
           "named": true
         }
       ]
@@ -1699,6 +1693,21 @@
     "type": "type_name",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "type_parameters",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "typed_parameter",

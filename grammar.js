@@ -58,14 +58,13 @@ module.exports = grammar({
         optional($.attribute),
         $.data,
         field("name", $.type_name),
-        field(
-          "type_parameters",
-          optional(repeat1(seq(optional($._layout_separator), $.identifier))),
-        ),
+        optional($.type_parameters),
         optional($._layout_separator),
         repeat(statement_layout($, seq($.bar, $.constructor_declaration))),
       ),
 
+    type_parameters: ($) =>
+      seq(optional($._layout_separator), repeat1($.identifier)),
     intrinsic_data_type: ($) =>
       seq(
         $.intrinsic,
