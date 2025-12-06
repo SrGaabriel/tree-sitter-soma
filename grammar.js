@@ -80,7 +80,7 @@ module.exports = grammar({
       seq(
         $.trait,
         field("type", $.application_type),
-        optional($.with_clause),  
+        optional($.with_clause),
         $.where,
         $._layout_start,
         repeat1(alias($.function_signature, $.trait_function_signature)),
@@ -97,11 +97,7 @@ module.exports = grammar({
         $._layout_end,
       ),
     intrinsic_instance: ($) =>
-      seq(
-        $.intrinsic,
-        $.instance,
-        field("instance_type", $.qualified_type)
-      ),
+      seq($.intrinsic, $.instance, field("instance_type", $.qualified_type)),
 
     import_declaration: ($) =>
       seq(
@@ -124,7 +120,8 @@ module.exports = grammar({
         field("name", $.constructor_name),
       ),
 
-    constructor_field: ($) => seq($.identifier, $.colon_colon, $.type),
+    constructor_field: ($) =>
+      seq(field("field_name", $.identifier), $.colon_colon, $.type),
     comment: ($) =>
       token(
         choice(seq("//", /[^\n]*/), seq("/*", /[^*]*\*+([^/*][^*]*\*+)*/, "/")),
@@ -142,7 +139,7 @@ module.exports = grammar({
         $.instance_declaration,
         $.import_declaration,
         $.intrinsic_data_type,
-        $.intrinsic_instance
+        $.intrinsic_instance,
       ),
     identifier: ($) => /[a-z_][a-zA-Z0-9_']*/,
     type_name: ($) => /[A-Z][a-zA-Z0-9_']*/,
@@ -223,21 +220,20 @@ module.exports = grammar({
         $.lambda_expression,
         $.infix_expression,
       ),
-    _primary_expression: ($) =>
+    primary_expression: ($) =>
       choice(
-        $.variable,
+        $.identifier,
         $.constructor_name,
         $._literal,
         $.parenthesized_expression,
         $.wildcard,
       ),
-    variable: ($) => $.identifier,
     associative_expression: ($) =>
-      choice($.app_expression, $._primary_expression),
+      choice($.app_expression, $.primary_expression),
     app_expression: ($) =>
       seq(
-        field("function", $._primary_expression),
-        field("arguments", repeat1($._primary_expression)),
+        field("function", $.primary_expression),
+        field("arguments", repeat1($.primary_expression)),
       ),
     infix_expression: ($) =>
       seq(
@@ -248,12 +244,12 @@ module.exports = grammar({
     wildcard: ($) => "_",
     _apply_expression: ($) =>
       choice(
-        $._primary_expression,
+        $.primary_expression,
         prec.left(
           PREC.apply,
           seq(
             field("function", $._apply_expression),
-            field("argument", $._primary_expression),
+            field("argument", $.primary_expression),
           ),
         ),
       ),
@@ -340,17 +336,9 @@ module.exports = grammar({
           optional(seq($.arrow, field("return", $.type))),
         ),
       ),
-    with: ($) => 'with',
-    qualified_type: ($) => seq(
-      $.type,
-      optional($.with_clause)
-    ),
-    attribute: ($) => seq(
-      "@",
-      "[",
-      commaSep1($.identifier),
-      "]"
-    )
+    with: ($) => "with",
+    qualified_type: ($) => seq($.type, optional($.with_clause)),
+    attribute: ($) => seq("@", "[", commaSep1($.identifier), "]"),
   },
 });
 function statement_layout($, rule) {

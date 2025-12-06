@@ -584,8 +584,12 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "identifier"
+          "type": "FIELD",
+          "name": "constructor_name",
+          "content": {
+            "type": "SYMBOL",
+            "name": "identifier"
+          }
         },
         {
           "type": "SYMBOL",
@@ -1315,12 +1319,12 @@
         }
       ]
     },
-    "_primary_expression": {
+    "primary_expression": {
       "type": "CHOICE",
       "members": [
         {
           "type": "SYMBOL",
-          "name": "variable"
+          "name": "identifier"
         },
         {
           "type": "SYMBOL",
@@ -1340,10 +1344,6 @@
         }
       ]
     },
-    "variable": {
-      "type": "SYMBOL",
-      "name": "identifier"
-    },
     "associative_expression": {
       "type": "CHOICE",
       "members": [
@@ -1353,7 +1353,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_primary_expression"
+          "name": "primary_expression"
         }
       ]
     },
@@ -1365,7 +1365,7 @@
           "name": "function",
           "content": {
             "type": "SYMBOL",
-            "name": "_primary_expression"
+            "name": "primary_expression"
           }
         },
         {
@@ -1375,7 +1375,7 @@
             "type": "REPEAT1",
             "content": {
               "type": "SYMBOL",
-              "name": "_primary_expression"
+              "name": "primary_expression"
             }
           }
         }
@@ -1461,7 +1461,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "_primary_expression"
+          "name": "primary_expression"
         },
         {
           "type": "PREC_LEFT",
@@ -1482,7 +1482,7 @@
                 "name": "argument",
                 "content": {
                   "type": "SYMBOL",
-                  "name": "_primary_expression"
+                  "name": "primary_expression"
                 }
               }
             ]
