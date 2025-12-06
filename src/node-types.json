@@ -831,6 +831,10 @@
           "named": true
         },
         {
+          "type": "intrinsic_instance",
+          "named": true
+        },
+        {
           "type": "trait_declaration",
           "named": true
         },
@@ -895,6 +899,36 @@
       "types": [
         {
           "type": "function_signature",
+          "named": true
+        },
+        {
+          "type": "intrinsic",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "intrinsic_instance",
+    "named": true,
+    "fields": {
+      "instance_type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "type",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "instance",
           "named": true
         },
         {
@@ -1500,6 +1534,10 @@
         },
         {
           "type": "intrinsic_function",
+          "named": true
+        },
+        {
+          "type": "intrinsic_instance",
           "named": true
         },
         {

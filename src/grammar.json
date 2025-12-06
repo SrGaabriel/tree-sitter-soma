@@ -356,6 +356,27 @@
         }
       ]
     },
+    "intrinsic_instance": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "intrinsic"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "instance"
+        },
+        {
+          "type": "FIELD",
+          "name": "instance_type",
+          "content": {
+            "type": "SYMBOL",
+            "name": "type"
+          }
+        }
+      ]
+    },
     "import_declaration": {
       "type": "SEQ",
       "members": [
@@ -662,6 +683,10 @@
         {
           "type": "SYMBOL",
           "name": "intrinsic_data_type"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "intrinsic_instance"
         }
       ]
     },

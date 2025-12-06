@@ -95,6 +95,12 @@ module.exports = grammar({
         repeat1($._top_level_declaration),
         $._layout_end,
       ),
+    intrinsic_instance: ($) =>
+      seq(
+        $.intrinsic,
+        $.instance,
+        field("instance_type", $.type)
+      ),
 
     import_declaration: ($) =>
       seq(
@@ -135,6 +141,7 @@ module.exports = grammar({
         $.instance_declaration,
         $.import_declaration,
         $.intrinsic_data_type,
+        $.intrinsic_instance
       ),
     identifier: ($) => /[a-z_][a-zA-Z0-9_']*/,
     type_name: ($) => /[A-Z][a-zA-Z0-9_']*/,

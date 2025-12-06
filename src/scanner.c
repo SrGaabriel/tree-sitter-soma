@@ -81,7 +81,8 @@ static bool is_operator_char(int32_t c) {
   return c == '+' || c == '-' || c == '*' ||
          c == '<' || c == '>' || c == '=' || c == '!' ||
          c == '&' || c == '|' || c == '%' || c == '^' ||
-         c == '~' || c == ':' || c == '.' || c == '$';
+         c == '~' || c == ':' || c == '.' || c == '$' ||
+         c == '?' || c == '/';
 }
 static bool isalnumreimpl(int c) {
   return ((c >= 'A' && c <= 'Z') ||
