@@ -220,7 +220,7 @@ module.exports = grammar({
         $.lambda_expression,
         $.infix_expression,
       ),
-    primary_expression: ($) =>
+    _primary_expression: ($) =>
       choice(
         $.identifier,
         $.constructor_name,
@@ -229,11 +229,11 @@ module.exports = grammar({
         $.wildcard,
       ),
     associative_expression: ($) =>
-      choice($.app_expression, $.primary_expression),
+      choice($.app_expression, $._primary_expression),
     app_expression: ($) =>
       seq(
-        field("function", $.primary_expression),
-        field("arguments", repeat1($.primary_expression)),
+        field("function", $._primary_expression),
+        field("arguments", repeat1($._primary_expression)),
       ),
     infix_expression: ($) =>
       seq(
@@ -244,12 +244,12 @@ module.exports = grammar({
     wildcard: ($) => "_",
     _apply_expression: ($) =>
       choice(
-        $.primary_expression,
+        $._primary_expression,
         prec.left(
           PREC.apply,
           seq(
             field("function", $._apply_expression),
-            field("argument", $.primary_expression),
+            field("argument", $._primary_expression),
           ),
         ),
       ),
