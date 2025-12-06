@@ -815,7 +815,7 @@
         "required": true,
         "types": [
           {
-            "type": "type",
+            "type": "qualified_type",
             "named": true
           }
         ]
@@ -940,7 +940,7 @@
         "required": true,
         "types": [
           {
-            "type": "type",
+            "type": "qualified_type",
             "named": true
           }
         ]

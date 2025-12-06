@@ -344,7 +344,7 @@
           "name": "instance_type",
           "content": {
             "type": "SYMBOL",
-            "name": "type"
+            "name": "qualified_type"
           }
         },
         {
@@ -384,7 +384,7 @@
           "name": "instance_type",
           "content": {
             "type": "SYMBOL",
-            "name": "type"
+            "name": "qualified_type"
           }
         }
       ]

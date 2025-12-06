@@ -90,7 +90,7 @@ module.exports = grammar({
     instance_declaration: ($) =>
       seq(
         $.instance,
-        field("instance_type", $.type),
+        field("instance_type", $.qualified_type),
         $.where,
         $._layout_start,
         repeat1($._top_level_declaration),
@@ -100,7 +100,7 @@ module.exports = grammar({
       seq(
         $.intrinsic,
         $.instance,
-        field("instance_type", $.type)
+        field("instance_type", $.qualified_type)
       ),
 
     import_declaration: ($) =>
