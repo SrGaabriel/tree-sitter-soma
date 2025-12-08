@@ -140,7 +140,7 @@ module.exports = grammar({
         "export",
         "{",
         choice(
-          commaSep1(choice($.identifier, $.type_name)),
+          commaSep1($._symbol),
           statement_layout($, seq($._symbol, optional(","))),
         ),
         "}",
