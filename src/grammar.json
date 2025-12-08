@@ -624,7 +624,7 @@
                         "members": [
                           {
                             "type": "SYMBOL",
-                            "name": "constructor_field"
+                            "name": "field_declaration"
                           },
                           {
                             "type": "REPEAT",
@@ -637,7 +637,7 @@
                                 },
                                 {
                                   "type": "SYMBOL",
-                                  "name": "constructor_field"
+                                  "name": "field_declaration"
                                 }
                               ]
                             }

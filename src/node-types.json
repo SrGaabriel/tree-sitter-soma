@@ -320,7 +320,7 @@
         "required": false,
         "types": [
           {
-            "type": "constructor_field",
+            "type": "field_declaration",
             "named": true
           },
           {
@@ -339,36 +339,6 @@
           }
         ]
       }
-    }
-  },
-  {
-    "type": "constructor_field",
-    "named": true,
-    "fields": {
-      "field_name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "identifier",
-            "named": true
-          }
-        ]
-      }
-    },
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "colon_colon",
-          "named": true
-        },
-        {
-          "type": "type",
-          "named": true
-        }
-      ]
     }
   },
   {

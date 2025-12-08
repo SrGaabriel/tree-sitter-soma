@@ -129,7 +129,7 @@ module.exports = grammar({
           field("name", $.constructor_name),
           field("fields", 
             choice(
-              statement_layout($, $.constructor_field),
+              statement_layout($, $.field_declaration),
               repeat($.type)
             )),
         ),
@@ -145,9 +145,6 @@ module.exports = grammar({
         ),
         "}",
       ),
-
-    constructor_field: ($) =>
-      seq(field("field_name", $.identifier), $.colon_colon, $.type),
     comment: ($) =>
       token(
         choice(seq("//", /[^\n]*/), seq("/*", /[^*]*\*+([^/*][^*]*\*+)*/, "/")),
