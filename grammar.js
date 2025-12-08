@@ -62,6 +62,19 @@ module.exports = grammar({
         optional($._layout_separator),
         repeat(statement_layout($, seq($.bar, $.constructor_declaration))),
       ),
+    struct_declaration: ($) =>
+      seq(
+        optional($.attribute),
+        "struct",
+        field("name", $.type_name),
+        repeat($.identifier),
+        $.equal,
+        field("constructor", $.constructor_name),
+        choice(
+          statement_layout($, $.field_declaration),
+          repeat($.type)
+        )
+      ),
 
     type_parameters: ($) =>
       seq(optional($._layout_separator), repeat1($.identifier)),
@@ -104,7 +117,7 @@ module.exports = grammar({
         field("module", $.import_path),
         ".",
         choice(
-          seq("{", commaSep1(choice($.identifier, $.type_name)), "}"),
+          seq("{", commaSep1($._symbol), "}"),
           "*",
         ),
       ),
@@ -114,9 +127,23 @@ module.exports = grammar({
       choice(
         seq(
           field("name", $.constructor_name),
-          field("fields", statement_layout($, $.constructor_field)),
+          field("fields", 
+            choice(
+              statement_layout($, $.constructor_field),
+              repeat($.type)
+            )),
         ),
         field("name", $.constructor_name),
+      ),
+    export_declaration: ($) =>
+      seq(
+        "export",
+        "{",
+        choice(
+          commaSep1(choice($.identifier, $.type_name)),
+          statement_layout($, seq($._symbol, optional(","))),
+        ),
+        "}",
       ),
 
     constructor_field: ($) =>
@@ -134,8 +161,10 @@ module.exports = grammar({
         $.function_declaration,
         $.intrinsic_function,
         $.data_type_declaration,
+        $.struct_declaration,
         $.trait_declaration,
         $.instance_declaration,
+        $.export_declaration,
         $.import_declaration,
         $.intrinsic_data_type,
         $.intrinsic_instance,
@@ -219,6 +248,7 @@ module.exports = grammar({
         $.lambda_expression,
         $.infix_expression,
       ),
+    _symbol: ($) => choice($.identifier, $.operator, $.type_name),
     _primary_expression: ($) =>
       choice(
         $.identifier,
