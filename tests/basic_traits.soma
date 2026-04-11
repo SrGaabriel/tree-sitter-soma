@@ -1,7 +1,0 @@
-trait Eq a where
-    def equals :: a -> a -> Bool
-    def equals :: a -> a -> Bool
-
-instance Eq Int where
-    def equals(x: Int, y: Int) -> Bool = true
-    def equals(x: Int, y: Int) -> Bool = true

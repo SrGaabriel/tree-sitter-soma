@@ -1,9 +1,0 @@
-intrinsic def hello :: a -> Option
-
-intrinsic def hello :: a -> Option
-
-intrinsic data IO :: * -> *
-
-intrinsic data String :: *
-
-intrinsic instance Monad IO

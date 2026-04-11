@@ -13,7 +13,6 @@
 #include "tree_sitter/parser.h"
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <stdbool.h>
 #include <stdint.h>
 // ========================================
@@ -24,29 +23,13 @@ typedef enum {
   LAYOUT_SEPARATOR,
   LAYOUT_END,
   OPERATOR,
-  DEF,
   EQUAL,
-  COLON_COLON,
   ARROW,
   BAR,
   DOUBLE_ARROW,
   COLON,
-  IF,
-  THEN,
-  ELSE,
-  LET,
-  IN,
-  COMPOSE,
-  BIND,
-  TRUE,
-  FALSE,
-  WHERE,
-  WITH,
-  INTRINSIC,
-  DATA,
-  TRAIT,
-  INSTANCE,
-  USE,
+  COLON_COLON,
+  DOT,
   REVERSE_ARROW,
 } Symbol;
 // ========================================
@@ -214,95 +197,6 @@ bool tree_sitter_soma_external_scanner_scan(void *payload, TSLexer *ts_lexer, co
       scanner->indent_computed = true;
       continue; // Loop back to handle pending layout
     }
-    // Keywords
-    if (islower(ts_lexer->lookahead) || ts_lexer->lookahead == '_') {
-      if (valid_symbols[DEF] && match_keyword(ts_lexer, "def")) {
-        ts_lexer->result_symbol = DEF;
-        ts_lexer->mark_end(ts_lexer);
-        return true;
-      }
-      if (valid_symbols[IF] && match_keyword(ts_lexer, "if")) {
-        ts_lexer->result_symbol = IF;
-        ts_lexer->mark_end(ts_lexer);
-        return true;
-      }
-      if (valid_symbols[THEN] && match_keyword(ts_lexer, "then")) {
-        ts_lexer->result_symbol = THEN;
-        ts_lexer->mark_end(ts_lexer);
-        return true;
-      }
-      if (valid_symbols[ELSE] && match_keyword(ts_lexer, "else")) {
-        ts_lexer->result_symbol = ELSE;
-        ts_lexer->mark_end(ts_lexer);
-        return true;
-      }
-      if (valid_symbols[LET] && match_keyword(ts_lexer, "let")) {
-        ts_lexer->result_symbol = LET;
-        ts_lexer->mark_end(ts_lexer);
-        return true;
-      }
-      if (valid_symbols[IN] && match_keyword(ts_lexer, "in")) {
-        ts_lexer->result_symbol = IN;
-        ts_lexer->mark_end(ts_lexer);
-        return true;
-      }
-      if (valid_symbols[COMPOSE] && match_keyword(ts_lexer, "compose")) {
-        ts_lexer->result_symbol = COMPOSE;
-        ts_lexer->mark_end(ts_lexer);
-        return true;
-      }
-      if (valid_symbols[BIND] && match_keyword(ts_lexer, "bind")) {
-        ts_lexer->result_symbol = BIND;
-        ts_lexer->mark_end(ts_lexer);
-        return true;
-      }
-      if (valid_symbols[TRUE] && match_keyword(ts_lexer, "true")) {
-        ts_lexer->result_symbol = TRUE;
-        ts_lexer->mark_end(ts_lexer);
-        return true;
-      }
-      if (valid_symbols[FALSE] && match_keyword(ts_lexer, "false")) {
-        ts_lexer->result_symbol = FALSE;
-        ts_lexer->mark_end(ts_lexer);
-        return true;
-      }
-      if (valid_symbols[WHERE] && match_keyword(ts_lexer, "where")) {
-        ts_lexer->result_symbol = WHERE;
-        ts_lexer->mark_end(ts_lexer);
-        return true;
-      }
-      if (valid_symbols[WITH] && match_keyword(ts_lexer, "with")) {
-        ts_lexer->result_symbol = WITH;
-        ts_lexer->mark_end(ts_lexer);
-        return true;
-      }
-      if (valid_symbols[INTRINSIC] && match_keyword(ts_lexer, "intrinsic")) {
-        ts_lexer->result_symbol = INTRINSIC;
-        ts_lexer->mark_end(ts_lexer);
-        return true;
-      }
-      if (valid_symbols[DATA] && match_keyword(ts_lexer, "data")) {
-        ts_lexer->result_symbol = DATA;
-        ts_lexer->mark_end(ts_lexer);
-        return true;
-      }
-      if (valid_symbols[TRAIT] && match_keyword(ts_lexer, "trait")) {
-        ts_lexer->result_symbol = TRAIT;
-        ts_lexer->mark_end(ts_lexer);
-        return true;
-      }
-      if (valid_symbols[INSTANCE] && match_keyword(ts_lexer, "instance")) {
-        ts_lexer->result_symbol = INSTANCE;
-        ts_lexer->mark_end(ts_lexer);
-        return true;
-      }
-      if (valid_symbols[USE] && match_keyword(ts_lexer, "use")) {
-        ts_lexer->result_symbol = USE;
-        ts_lexer->mark_end(ts_lexer);
-        return true;
-      }
-      return false;
-    }
     // Operators and symbols
     if (is_operator_char(ts_lexer->lookahead)) {
       int32_t op_buf[32];
@@ -348,6 +242,11 @@ bool tree_sitter_soma_external_scanner_scan(void *payload, TSLexer *ts_lexer, co
       } else if (op_len == 2 && op_buf[0] == '<' && op_buf[1] == '-') {
         if (valid_symbols[REVERSE_ARROW]) {
           ts_lexer->result_symbol = REVERSE_ARROW;
+          return true;
+        }
+      } else if (op_len == 1 && op_buf[0] == '.') {
+        if (valid_symbols[DOT]) {
+          ts_lexer->result_symbol = DOT;
           return true;
         }
       } else if (valid_symbols[OPERATOR]) {

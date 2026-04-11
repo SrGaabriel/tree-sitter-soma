@@ -11,29 +11,13 @@ module.exports = grammar({
     $._layout_separator,
     $._layout_end,
     $.operator,
-    $.def,
     $.equal,
-    $.colon_colon,
     $.arrow,
     $.bar,
     $.double_arrow,
     $.colon,
-    $.if,
-    $.then,
-    $.else,
-    $.let,
-    $.in,
-    $.compose,
-    $.bind,
-    $.true,
-    $.false,
-    $.where,
-    $.with,
-    $.intrinsic,
-    $.data,
-    $.trait,
-    $.instance,
-    $.import,
+    $.colon_colon,
+    $.dot,
     $.reverse_arrow,
   ],
   extras: ($) => [$.comment, /[ \n\t\r\f]+/],
@@ -41,59 +25,39 @@ module.exports = grammar({
   rules: {
     source_file: ($) => repeat($._top_level_declaration),
 
-    data: ($) => "data",
-    trait: ($) => "trait",
-    instance: ($) => "instance",
-    intrinsic_function: ($) => seq($.intrinsic, $.function_signature),
     function_signature: ($) =>
       seq(
-        $.def,
+        "def",
         field("name", choice($.identifier, $.operator)),
-        $.colon_colon,
-        field("type_signature", $.qualified_type),
+        $.colon,
+        field("type_signature", $.type),
       ),
 
     data_type_declaration: ($) =>
       seq(
         optional($.attribute),
-        $.data,
-        field("name", $.type_name),
-        optional($.type_parameters),
-        optional($._layout_separator),
-        repeat(statement_layout($, seq($.bar, $.constructor_declaration))),
+        "inductive",
+        field("name", $.constructor_name),
+        repeat($.binder),
+        optional(seq(":", field("index_type", $.type))),
+        "where",
+        statement_layout($, seq($.constructor_declaration)),
       ),
     struct_declaration: ($) =>
       seq(
         optional($.attribute),
-        "struct",
-        field("name", $.type_name),
-        repeat($.identifier),
-        $.equal,
-        field("constructor", $.constructor_name),
-        choice(
-          statement_layout($, $.field_declaration),
-          repeat($.type)
-        )
+        "record",
+        field("name", $.constructor_name),
+        repeat($.binder),
+        "where",
+        statement_layout($, $.field_declaration),
       ),
-
-    type_parameters: ($) =>
-      seq(optional($._layout_separator), repeat1($.identifier)),
-    intrinsic_data_type: ($) =>
-      seq(
-        $.intrinsic,
-        $.data,
-        field("name", $.type_name),
-        $.colon_colon,
-        field("kind", $.kind_declaration),
-      ),
-    kind_declaration: ($) => sepBy1($.arrow, "*"),
 
     trait_declaration: ($) =>
       seq(
-        $.trait,
+        "class",
         field("type", $.application_type),
-        optional($.with_clause),
-        $.where,
+        "where",
         $._layout_start,
         repeat1(alias($.function_signature, $.trait_function_signature)),
         $._layout_end,
@@ -101,50 +65,42 @@ module.exports = grammar({
 
     instance_declaration: ($) =>
       seq(
-        $.instance,
-        field("instance_type", $.qualified_type),
-        $.where,
+        "instance",
+        field("instance_type", $.type),
+        "where",
         $._layout_start,
         repeat1($._top_level_declaration),
         $._layout_end,
       ),
-    intrinsic_instance: ($) =>
-      seq($.intrinsic, $.instance, field("instance_type", $.qualified_type)),
-
     import_declaration: ($) =>
       seq(
-        $.import,
+        optional("pub"),
+        "use",
         field("module", $.import_path),
-        ".",
-        choice(
-          seq("{", commaSep1($._symbol), "}"),
-          "*",
-        ),
+        $.dot,
+        choice(seq("{", commaSep1($._symbol), "}"), "*"),
       ),
     import_path: ($) => sepBy1("/", $.identifier),
 
     constructor_declaration: ($) =>
-      choice(
-        seq(
-          field("name", $.constructor_name),
-          field("fields", 
-            choice(
-              statement_layout($, $.field_declaration),
-              repeat($.type)
-            )),
-        ),
-        field("name", $.constructor_name),
-      ),
-    export_declaration: ($) =>
       seq(
-        "export",
-        "{",
-        choice(
-          commaSep1($._symbol),
-          statement_layout($, seq($._symbol, optional(","))),
-        ),
-        "}",
+        $.bar,
+        field("name", $.constructor_name),
+        optional(seq($.colon, field("type", $.type))),
       ),
+    binder: ($) =>
+      choice(
+        seq("(", field("name", $.identifier), ":", field("type", $.type), ")"),
+        seq("{", field("name", $.identifier), ":", field("type", $.type), "}"),
+        seq(
+          "{{",
+          field("name", $.identifier),
+          ":",
+          field("type", $.type),
+          "}}",
+        ),
+      ),
+
     comment: ($) =>
       token(
         choice(seq("//", /[^\n]*/), seq("/*", /[^*]*\*+([^/*][^*]*\*+)*/, "/")),
@@ -156,22 +112,20 @@ module.exports = grammar({
     _top_level_declaration: ($) =>
       choice(
         $.function_declaration,
-        $.intrinsic_function,
         $.data_type_declaration,
         $.struct_declaration,
         $.trait_declaration,
         $.instance_declaration,
-        $.export_declaration,
         $.import_declaration,
-        $.intrinsic_data_type,
-        $.intrinsic_instance,
       ),
     identifier: ($) => /[a-z_][a-zA-Z0-9_']*/,
-    type_name: ($) => /[A-Z][a-zA-Z0-9_']*/,
+    qualified_constructor_name: ($) =>
+      seq($.constructor_name, repeat(seq($.colon_colon, $.constructor_name))),
     constructor_name: ($) => /[A-Z][a-zA-Z0-9_']*/,
+
     integer_literal: ($) => /\d+/,
     string_literal: ($) => /"([^"\\]|\\.)*"/,
-    bool_literal: ($) => choice($.true, $.false),
+    bool_literal: ($) => choice("True", "False"),
     list_literal: ($) => seq("[", commaSep($._expression), "]"),
     _literal: ($) =>
       choice(
@@ -180,54 +134,29 @@ module.exports = grammar({
         $.bool_literal,
         $.list_literal,
       ),
-    kind: ($) => sepBy1($.arrow, "*"),
     field_declaration: ($) =>
-      seq(field("name", $.identifier), $.colon_colon, field("type", $.type)),
+      seq(field("name", $.identifier), $.colon, field("type", $.type)),
     function_declaration: ($) =>
       seq(
         optional($.attribute),
-        $.def,
+        "def",
         field("name", choice($.identifier, $.operator)),
-        optional(field("parameters", $.parameter_list)),
+        repeat($.binder),
+        $.colon,
+        field("return_type", $.type),
         choice(
-          // Pattern match
+          field("body", $.pattern_matching_body),
           seq(
-            $.colon_colon,
-            field("type_signature", $.qualified_type),
-            field("body", $.pattern_matching_body),
-          ),
-          // Imperative
-          seq(
-            optional(seq($.arrow, field("return_type", $.type))),
-            $.equal,
-            field("body", choice($._expression, $._block_expression)),
-          ),
-          // Constant
-          seq(
-            $.colon_colon,
-            field("type_signature", $.qualified_type),
             $.equal,
             field("body", choice($._expression, $._block_expression)),
           ),
         ),
       ),
-    parameter_list: ($) => seq("(", commaSep1($.fn_parameter), ")"),
 
-    fn_parameter: ($) => choice($.identifier, $.typed_parameter),
-    typed_parameter: ($) =>
-      seq(field("name", $.identifier), $.colon, field("type", $.type)),
     _function_body: ($) =>
       choice(
         seq($.equal, field("body", $._definition_rhs)),
         field("body", $.pattern_matching_body),
-      ),
-    with_clause: ($) =>
-      seq(
-        $.with,
-        choice(
-          commaSep1($.application_type),
-          seq("(", commaSep1($.application_type), ")"),
-        ),
       ),
     pattern_matching_body: ($) => statement_layout($, $.match_arm),
     match_arm: ($) =>
@@ -245,11 +174,11 @@ module.exports = grammar({
         $.lambda_expression,
         $.infix_expression,
       ),
-    _symbol: ($) => choice($.identifier, $.operator, $.type_name),
+    _symbol: ($) => choice($.identifier, $.operator, $.constructor_name),
     _primary_expression: ($) =>
       choice(
         $.identifier,
-        $.constructor_name,
+        $.qualified_constructor_name,
         $._literal,
         $.parenthesized_expression,
         $.wildcard,
@@ -288,36 +217,36 @@ module.exports = grammar({
       ),
     if_expression: ($) =>
       seq(
-        $.if,
+        "if",
         field("condition", $._expression),
-        $.then,
+        "then",
         field("consequence", $._expression),
-        $.else,
+        "else",
         field("alternative", $._expression),
       ),
     let_expression: ($) =>
       seq(
-        $.let,
+        "let",
         field("pattern", $._pattern),
         $.equal,
         field("value", $._expression),
-        $.in,
+        "in",
         field("body", $._definition_rhs),
       ),
     compose_block: ($) =>
-      seq($.compose, statement_layout($, $._compose_statement)),
+      seq("compose", statement_layout($, $._compose_statement)),
     _compose_statement: ($) =>
       choice($.bind_statement, $.let_statement, $._expression),
     bind_statement: ($) =>
       seq(
-        $.bind,
+        "bind",
         field("pattern", $._pattern),
         "<-",
         field("value", $._expression),
       ),
     let_statement: ($) =>
       seq(
-        $.let,
+        "let",
         field("pattern", $._pattern),
         $.equal,
         field("value", $._definition_rhs),
@@ -333,14 +262,14 @@ module.exports = grammar({
     constructor_pattern: ($) =>
       seq(
         "(",
-        field("constructor", $.type_name),
+        field("constructor", $.qualified_constructor_name),
         field("fields", repeat($._pattern)),
         ")",
       ),
     parenthesized_pattern: ($) => seq("(", $._pattern, ")"),
     simple_type: ($) =>
       choice(
-        $.type_name,
+        $.qualified_constructor_name,
         $.identifier,
         seq("[", field("element", $.type), "]"),
         seq("(", choice($.type, commaSep($.type)), ")"),
@@ -354,17 +283,26 @@ module.exports = grammar({
           repeat(field("argument", $.simple_type)),
         ),
       ),
+    forall_type: ($) =>
+      seq(
+        $.forall,
+        repeat1($.binder),
+        $.dot,
+        field("body", $.type),
+      ),
     type: ($) =>
-      prec.right(
-        PREC.arrow,
-        seq(
-          field("parameter", $.application_type),
-          optional(seq($.arrow, field("return", $.type))),
+      choice(
+        $.forall_type,
+        prec.right(
+          PREC.arrow,
+          seq(
+            field("parameter", $.application_type),
+            optional(seq($.arrow, field("return", $.type))),
+          ),
         ),
       ),
-    with: ($) => "with",
-    qualified_type: ($) => seq($.type, optional($.with_clause)),
     attribute: ($) => seq("@", "[", commaSep1($.identifier), "]"),
+    forall: ($) => choice("\\", "∀"),
   },
 });
 function statement_layout($, rule) {
