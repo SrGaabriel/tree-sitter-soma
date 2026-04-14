@@ -1,21 +1,20 @@
 [
-  (if)
-  (then)
-  (else)
-  (let)
-  (in)
-  (compose)
-  (bind)
-  (where)
-  (def)
-  (intrinsic)
-  (data)
-  (trait)
-  (instance)
-  (import)
-  (with)
-  "export"
-  "struct"
+  "if"
+  "then"
+  "else"
+  "let"
+  "in"
+  "compose"
+  "bind"
+  "where"
+  "def"
+  "class"
+  "record"
+  "inductive"
+  "instance"
+  "use"
+  "pub"
+  "alias"
 ] @keyword
 
 (comment) @comment
@@ -29,22 +28,26 @@
   name: (_) @function
 )
 
-(function_signature
-  name: (_) @function
-)
-
 (trait_function_signature
   name: (_) @function
 )
 
-(type_parameters) @type
-
 (constructor_pattern
-  constructor: (type_name) @constructor
+  constructor: (qualified_constructor_name) @constructor
 )
 
+; Field and property names
 (field_declaration
     name: (identifier) @property
+)
+(row_field
+    name: (identifier) @property
+)
+(record_field_assignment
+    name: (identifier) @property
+)
+(field_access_expression
+    field: (identifier) @property
 )
 
 (import_path
@@ -52,13 +55,10 @@
 
 (simple_type) @type
 
-(type_name) @type
-
 [
   (arrow)
   (equal)
   (colon)
-  (colon_colon)
   (bar)
   (double_arrow)
   (operator)
@@ -68,8 +68,21 @@
 
 (constructor_name) @constructor
 
+; Variant type tags
+(variant_field
+    name: (constructor_name) @constructor
+)
+
+; Variant injection and patterns
+(variant_injection
+    constructor: (constructor_name) @constructor
+)
+(variant_pattern
+    constructor: (constructor_name) @constructor
+)
+
 (app_expression
-  function: (identifier) @function)
+  function: (identifier) @function.call)
 
 [
     "{"
@@ -80,20 +93,20 @@
     "]"
 ] @punctuation.bracket
 
-"\\" @keyword.operator
+(forall) @keyword.operator
 
 [
-    "."
+    (dot)
     "/"
     ","
+    (colon_colon)
 ] @punctuation.delimiter
 
 (attribute
     "[" @attribute
     "]" @attribute
 ) @attribute
-(fn_parameter (identifier) @variable.parameter)
 
-(typed_parameter
+(binder
     name: (identifier) @variable.parameter
 )

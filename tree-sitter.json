@@ -10,7 +10,8 @@
         "soma"
       ],
       "injection-regex": "^soma$",
-      "class-name": "TreeSitterSoma"
+      "class-name": "TreeSitterSoma",
+      "highlights": "queries/soma/highlights.scm"
     }
   ],
   "metadata": {

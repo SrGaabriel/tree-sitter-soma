@@ -1,4 +1,5 @@
 const PREC = {
+  field_access: 3,
   apply: 2,
   infix: 1,
   arrow: 0,
@@ -19,6 +20,8 @@ module.exports = grammar({
     $.colon_colon,
     $.dot,
     $.reverse_arrow,
+    $._variant_open,
+    $._variant_close,
   ],
   extras: ($) => [$.comment, /[ \n\t\r\f]+/],
   word: ($) => $.identifier,
@@ -109,6 +112,14 @@ module.exports = grammar({
     _block_expression: ($) =>
       seq($._layout_start, $._expression, $._layout_end),
     _definition_rhs: ($) => choice($._expression, $._block_expression),
+    alias_declaration: ($) =>
+      seq(
+        "alias",
+        field("name", $.constructor_name),
+        repeat(field("parameter", $.identifier)),
+        $.equal,
+        field("type", $.type),
+      ),
     _top_level_declaration: ($) =>
       choice(
         $.function_declaration,
@@ -117,6 +128,7 @@ module.exports = grammar({
         $.trait_declaration,
         $.instance_declaration,
         $.import_declaration,
+        $.alias_declaration,
       ),
     identifier: ($) => /[a-z_][a-zA-Z0-9_']*/,
     qualified_constructor_name: ($) =>
@@ -177,11 +189,14 @@ module.exports = grammar({
     _symbol: ($) => choice($.identifier, $.operator, $.constructor_name),
     _primary_expression: ($) =>
       choice(
+        $.field_access_expression,
         $.identifier,
         $.qualified_constructor_name,
         $._literal,
         $.parenthesized_expression,
         $.wildcard,
+        $.record_expression,
+        $.variant_injection,
       ),
     associative_expression: ($) =>
       choice($.app_expression, $._primary_expression),
@@ -258,6 +273,14 @@ module.exports = grammar({
         $.constructor_pattern,
         $.parenthesized_pattern,
         $.wildcard,
+        $.variant_pattern,
+      ),
+    _simple_pattern: ($) =>
+      choice(
+        $.identifier,
+        $._literal,
+        $.parenthesized_pattern,
+        $.wildcard,
       ),
     constructor_pattern: ($) =>
       seq(
@@ -267,12 +290,62 @@ module.exports = grammar({
         ")",
       ),
     parenthesized_pattern: ($) => seq("(", $._pattern, ")"),
+    variant_pattern: ($) =>
+      prec.left(
+        seq(
+          $.dot,
+          field("constructor", $.constructor_name),
+          field("fields", repeat($._simple_pattern)),
+        ),
+      ),
+
+    record_field_assignment: ($) =>
+      seq(field("name", $.identifier), $.equal, field("value", $._expression)),
+    record_expression: ($) =>
+      seq("{", commaSep1($.record_field_assignment), "}"),
+
+    field_access_expression: ($) =>
+      prec.left(
+        PREC.field_access,
+        seq(
+          field("record", $._primary_expression),
+          $.dot,
+          field("field", $.identifier),
+        ),
+      ),
+
+    // Variant injection: .Constructor
+    variant_injection: ($) =>
+      seq($.dot, field("constructor", $.constructor_name)),
+
     simple_type: ($) =>
       choice(
         $.qualified_constructor_name,
         $.identifier,
         seq("[", field("element", $.type), "]"),
         seq("(", choice($.type, commaSep($.type)), ")"),
+        $.row_type,
+        $.variant_type,
+      ),
+
+    row_field: ($) =>
+      seq(field("name", $.identifier), $.colon, field("type", $.type)),
+    row_type: ($) =>
+      seq(
+        "{",
+        commaSep1($.row_field),
+        optional(seq($.bar, field("extension", $.identifier))),
+        "}",
+      ),
+
+    // Variant types: < Ok : Int32 | Err : String >
+    variant_field: ($) =>
+      seq(field("name", $.constructor_name), $.colon, field("type", $.type)),
+    variant_type: ($) =>
+      seq(
+        $._variant_open,
+        sepBy1($.bar, $.variant_field),
+        $._variant_close,
       ),
 
     application_type: ($) =>

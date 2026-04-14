@@ -1,6 +1,6 @@
 (data_type_declaration
-    (data) @context
-    name: (type_name) @name
+    "inductive" @context
+    name: (constructor_name) @name
 ) @item
 
 (constructor_declaration
@@ -8,8 +8,8 @@
 ) @item
 
 (struct_declaration
-    "struct" @context
-    name: (type_name) @name
+    "record" @context
+    name: (constructor_name) @name
 ) @item
 
 (field_declaration
@@ -17,34 +17,26 @@
 ) @item
 
 (instance_declaration
-    (instance) @context
-    instance_type: (qualified_type) @name
+    "instance" @context
+    instance_type: (_) @name
 ) @item
 
 (function_declaration
-    (def) @context
+    "def" @context
     name: (_) @name
 ) @item
 
 (trait_declaration
-    (trait) @context
+    "class" @context
     type: (_) @name
 ) @item
 
 (trait_function_signature
-    (def) @context
+    "def" @context
     name: (_) @name
 ) @item
 
-(intrinsic_data_type
-    (intrinsic) @context
-    name: (_) @name
-) @item
-
-(intrinsic_function
-    (intrinsic) @context
-    (function_signature
-        (def) @context
-        name: (_) @name
-    )
+(alias_declaration
+    "alias" @context
+    name: (constructor_name) @name
 ) @item

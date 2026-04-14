@@ -31,6 +31,8 @@ typedef enum {
   COLON_COLON,
   DOT,
   REVERSE_ARROW,
+  VARIANT_OPEN,
+  VARIANT_CLOSE,
 } Symbol;
 // ========================================
 // Scanner State
@@ -247,6 +249,16 @@ bool tree_sitter_soma_external_scanner_scan(void *payload, TSLexer *ts_lexer, co
       } else if (op_len == 1 && op_buf[0] == '.') {
         if (valid_symbols[DOT]) {
           ts_lexer->result_symbol = DOT;
+          return true;
+        }
+      } else if (op_len == 1 && op_buf[0] == '<') {
+        if (valid_symbols[VARIANT_OPEN]) {
+          ts_lexer->result_symbol = VARIANT_OPEN;
+          return true;
+        }
+      } else if (op_len == 1 && op_buf[0] == '>') {
+        if (valid_symbols[VARIANT_CLOSE]) {
+          ts_lexer->result_symbol = VARIANT_CLOSE;
           return true;
         }
       } else if (valid_symbols[OPERATOR]) {
