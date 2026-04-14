@@ -22,7 +22,7 @@
 (string_literal) @string
 (integer_literal) @number
 (bool_literal) @boolean
-(list_literal) @list
+(list_literal) @punctuation.bracket
 
 (function_declaration
   name: (_) @function
@@ -53,7 +53,8 @@
 (import_path
   (identifier) @module)
 
-(simple_type) @type
+; Type variables (lowercase identifiers in type position, e.g. `m`, `r`, `a`)
+(simple_type (identifier) @type)
 
 [
   (arrow)
@@ -82,7 +83,7 @@
 )
 
 (app_expression
-  function: (identifier) @function.call)
+  function: (identifier) @function)
 
 [
     "{"
