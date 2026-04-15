@@ -1,0 +1,12 @@
+// expect: success
+// Test: record data type
+
+record Point where
+    x : Int32
+    y : Int32
+
+def get_x : Point -> Int32
+    | Point x _ => x
+
+def get_y : Point -> Int32
+    | Point _ y => y

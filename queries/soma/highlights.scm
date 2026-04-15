@@ -35,8 +35,10 @@
 (constructor_pattern
   constructor: (qualified_constructor_name) @constructor
 )
+(constructor_pattern
+  constructor: (constructor_name) @constructor
+)
 
-; Field and property names
 (field_declaration
     name: (identifier) @property
 )
@@ -59,6 +61,7 @@
 [
   (arrow)
   (equal)
+  (colon_equal)
   (colon)
   (bar)
   (double_arrow)

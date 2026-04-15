@@ -31,6 +31,7 @@ typedef enum {
   COLON_COLON,
   DOT,
   REVERSE_ARROW,
+  COLON_EQUAL,
   VARIANT_OPEN,
   VARIANT_CLOSE,
 } Symbol;
@@ -210,58 +211,30 @@ bool tree_sitter_soma_external_scanner_scan(void *payload, TSLexer *ts_lexer, co
         ts_lexer->advance(ts_lexer, false);
       }
       ts_lexer->mark_end(ts_lexer);
-      // Check for reserved symbols
-      if (op_len == 2 && op_buf[0] == '-' && op_buf[1] == '>') {
-        if (valid_symbols[ARROW]) {
-          ts_lexer->result_symbol = ARROW;
-          return true;
+
+      Symbol reserved = (Symbol)-1;
+      if (op_len == 1) {
+        switch (op_buf[0]) {
+          case '=': reserved = EQUAL; break;
+          case '|': reserved = BAR; break;
+          case ':': reserved = COLON; break;
+          case '.': reserved = DOT; break;
+          case '<': reserved = VARIANT_OPEN; break;
+          case '>': reserved = VARIANT_CLOSE; break;
         }
-      } else if (op_len == 2 && op_buf[0] == '=' && op_buf[1] == '>') {
-        if (valid_symbols[DOUBLE_ARROW]) {
-          ts_lexer->result_symbol = DOUBLE_ARROW;
-          return true;
-        }
-      } else if (op_len == 2 && op_buf[0] == ':' && op_buf[1] == ':') {
-        if (valid_symbols[COLON_COLON]) {
-          ts_lexer->result_symbol = COLON_COLON;
-          return true;
-        }
-      } else if (op_len == 1 && op_buf[0] == '=') {
-        if (valid_symbols[EQUAL]) {
-          ts_lexer->result_symbol = EQUAL;
-          return true;
-        }
-      } else if (op_len == 1 && op_buf[0] == '|') {
-        if (valid_symbols[BAR]) {
-          ts_lexer->result_symbol = BAR;
-          return true;
-        }
-      } else if (op_len == 1 && op_buf[0] == ':') {
-        if (valid_symbols[COLON]) {
-          ts_lexer->result_symbol = COLON;
-          return true;
-        }
-      } else if (op_len == 2 && op_buf[0] == '<' && op_buf[1] == '-') {
-        if (valid_symbols[REVERSE_ARROW]) {
-          ts_lexer->result_symbol = REVERSE_ARROW;
-          return true;
-        }
-      } else if (op_len == 1 && op_buf[0] == '.') {
-        if (valid_symbols[DOT]) {
-          ts_lexer->result_symbol = DOT;
-          return true;
-        }
-      } else if (op_len == 1 && op_buf[0] == '<') {
-        if (valid_symbols[VARIANT_OPEN]) {
-          ts_lexer->result_symbol = VARIANT_OPEN;
-          return true;
-        }
-      } else if (op_len == 1 && op_buf[0] == '>') {
-        if (valid_symbols[VARIANT_CLOSE]) {
-          ts_lexer->result_symbol = VARIANT_CLOSE;
-          return true;
-        }
-      } else if (valid_symbols[OPERATOR]) {
+      } else if (op_len == 2) {
+        if (op_buf[0] == '-' && op_buf[1] == '>') reserved = ARROW;
+        else if (op_buf[0] == '=' && op_buf[1] == '>') reserved = DOUBLE_ARROW;
+        else if (op_buf[0] == ':' && op_buf[1] == ':') reserved = COLON_COLON;
+        else if (op_buf[0] == ':' && op_buf[1] == '=') reserved = COLON_EQUAL;
+        else if (op_buf[0] == '<' && op_buf[1] == '-') reserved = REVERSE_ARROW;
+      }
+
+      if (reserved != (Symbol)-1 && valid_symbols[reserved]) {
+        ts_lexer->result_symbol = reserved;
+        return true;
+      }
+      if (valid_symbols[OPERATOR]) {
         ts_lexer->result_symbol = OPERATOR;
         return true;
       }

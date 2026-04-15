@@ -1,0 +1,10 @@
+// expect: success
+// Test: simple algebraic data type
+
+inductive MyBool where
+    | MyTrue
+    | MyFalse
+
+def not : MyBool -> MyBool
+    | MyBool::MyTrue => MyBool::MyFalse
+    | MyBool::MyFalse => MyBool::MyTrue

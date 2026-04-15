@@ -28,11 +28,10 @@
 
 (trait_declaration
     "class" @context
-    type: (_) @name
+    name: (constructor_name) @name
 ) @item
 
 (trait_function_signature
-    "def" @context
     name: (_) @name
 ) @item
 
