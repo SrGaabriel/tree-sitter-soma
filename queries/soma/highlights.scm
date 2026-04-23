@@ -101,7 +101,6 @@
 
 [
     (dot)
-    "/"
     ","
     (colon_colon)
 ] @punctuation.delimiter
