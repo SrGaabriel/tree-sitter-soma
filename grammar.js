@@ -24,9 +24,7 @@ module.exports = grammar({
     $._variant_open,
     $._variant_close,
   ],
-  conflicts: ($) => [
-    [$._pattern, $._simple_pattern],
-  ],
+  conflicts: ($) => [[$._pattern, $._simple_pattern]],
   extras: ($) => [$.comment, /[ \n\t\r\f]+/],
   word: ($) => $.identifier,
   rules: {
@@ -39,8 +37,7 @@ module.exports = grammar({
         field("name", $.constructor_name),
         repeat($.binder),
         optional(seq($.colon, field("index_type", $.type))),
-        "where",
-        statement_layout($, $.constructor_declaration),
+        optional(seq("where", statement_layout($, $.constructor_declaration))),
       ),
     struct_declaration: ($) =>
       seq(
@@ -64,17 +61,19 @@ module.exports = grammar({
         field("name", $.constructor_name),
         repeat($.binder),
         "where",
-        statement_layout($, choice(
-          alias($.trait_method_signature, $.trait_function_signature),
-          alias($.function_declaration, $.trait_function_signature),
-        )),
+        statement_layout(
+          $,
+          choice(
+            alias($.trait_method_signature, $.trait_function_signature),
+            alias($.function_declaration, $.trait_function_signature),
+          ),
+        ),
       ),
 
     instance_declaration: ($) =>
       seq(
         "instance",
-        optional(field("name", $.identifier)),
-        $.colon,
+        optional(seq(optional(field("name", $.identifier)), $.colon)),
         field("instance_type", $.type),
         "where",
         statement_layout($, $._top_level_declaration),
@@ -84,10 +83,9 @@ module.exports = grammar({
         optional("pub"),
         "use",
         field("module", $.import_path),
-        $.dot,
         choice(seq("{", commaSep1($._symbol), "}"), "*"),
       ),
-    import_path: ($) => sepBy1("/", $.identifier),
+    import_path: ($) => repeat1(seq($.identifier, $.colon_colon)),
 
     constructor_declaration: ($) =>
       seq(
@@ -99,8 +97,22 @@ module.exports = grammar({
     quantity: ($) => choice($.integer_literal, "ω"),
     binder: ($) =>
       choice(
-        seq("(", optional(field("quantity", $.quantity)), field("name", $.identifier), ":", field("type", $.type), ")"),
-        seq("{", optional(field("quantity", $.quantity)), field("name", $.identifier), ":", field("type", $.type), "}"),
+        seq(
+          "(",
+          optional(field("quantity", $.quantity)),
+          field("name", $.identifier),
+          ":",
+          field("type", $.type),
+          ")",
+        ),
+        seq(
+          "{",
+          optional(field("quantity", $.quantity)),
+          field("name", $.identifier),
+          ":",
+          field("type", $.type),
+          "}",
+        ),
         seq(
           "{{",
           optional(field("quantity", $.quantity)),
@@ -162,13 +174,15 @@ module.exports = grammar({
         field("name", choice($.identifier, $.operator)),
         repeat($.binder),
         optional(seq($.colon, field("return_type", $.type))),
-        optional(choice(
-          field("body", $.pattern_matching_body),
-          seq(
-            $.colon_equal,
-            field("body", choice($._expression, $._block_expression)),
+        optional(
+          choice(
+            field("body", $.pattern_matching_body),
+            seq(
+              $.colon_equal,
+              field("body", choice($._expression, $._block_expression)),
+            ),
           ),
-        )),
+        ),
       ),
 
     pattern_matching_body: ($) => statement_layout($, $.match_arm),
@@ -205,17 +219,21 @@ module.exports = grammar({
         $.label_reference,
       ),
     app_expression: ($) =>
-      prec.left(PREC.apply,
+      prec.left(
+        PREC.apply,
         seq(
           field("function", $._primary_expression),
           field("arguments", repeat1($._primary_expression)),
         ),
       ),
     infix_expression: ($) =>
-      prec.left(PREC.infix,
+      prec.left(
+        PREC.infix,
         seq(
           choice($.app_expression, $._primary_expression),
-          repeat1(seq($.operator, choice($.app_expression, $._primary_expression))),
+          repeat1(
+            seq($.operator, choice($.app_expression, $._primary_expression)),
+          ),
         ),
       ),
     parenthesized_expression: ($) => seq("(", commaSep($._expression), ")"),
@@ -276,10 +294,16 @@ module.exports = grammar({
         $.variant_pattern,
       ),
     constructor_app_pattern: ($) =>
-      prec.left(1, seq(
-        field("constructor", choice($.qualified_constructor_name, $.constructor_name)),
-        field("fields", repeat1($._simple_pattern)),
-      )),
+      prec.left(
+        1,
+        seq(
+          field(
+            "constructor",
+            choice($.qualified_constructor_name, $.constructor_name),
+          ),
+          field("fields", repeat1($._simple_pattern)),
+        ),
+      ),
     _simple_pattern: ($) =>
       choice(
         $.identifier,
@@ -290,10 +314,14 @@ module.exports = grammar({
         $.wildcard,
       ),
     constructor_pattern: ($) =>
-      prec(1,
+      prec(
+        1,
         seq(
           "(",
-          field("constructor", choice($.qualified_constructor_name, $.constructor_name)),
+          field(
+            "constructor",
+            choice($.qualified_constructor_name, $.constructor_name),
+          ),
           field("fields", repeat($._pattern)),
           ")",
         ),
@@ -309,7 +337,11 @@ module.exports = grammar({
       ),
 
     record_field_assignment: ($) =>
-      seq(field("name", $.identifier), $.colon_equal, field("value", $._expression)),
+      seq(
+        field("name", $.identifier),
+        $.colon_equal,
+        field("value", $._expression),
+      ),
     record_expression: ($) =>
       seq("{", commaSep1($.record_field_assignment), "}"),
 
@@ -349,13 +381,13 @@ module.exports = grammar({
       ),
 
     variant_field: ($) =>
-      seq(field("name", $.constructor_name), $.colon_colon, field("type", $.type)),
-    variant_type: ($) =>
       seq(
-        $._variant_open,
-        sepBy1($.bar, $.variant_field),
-        $._variant_close,
+        field("name", $.constructor_name),
+        $.colon_colon,
+        field("type", $.type),
       ),
+    variant_type: ($) =>
+      seq($._variant_open, sepBy1($.bar, $.variant_field), $._variant_close),
 
     application_type: ($) =>
       prec.left(
@@ -384,11 +416,7 @@ module.exports = grammar({
     pi_type: ($) =>
       prec.right(
         PREC.arrow,
-        seq(
-          field("binder", $.binder),
-          $.arrow,
-          field("return", $.type),
-        ),
+        seq(field("binder", $.binder), $.arrow, field("return", $.type)),
       ),
     type: ($) =>
       choice(
@@ -398,7 +426,8 @@ module.exports = grammar({
         $.application_type,
         $.simple_type,
       ),
-    attribute: ($) => seq("@", "[", repeat1(choice($.identifier, $.string_literal)), "]"),
+    attribute: ($) =>
+      seq("@", "[", repeat1(choice($.identifier, $.string_literal)), "]"),
     forall: ($) => choice("\\", "∀"),
   },
 });
