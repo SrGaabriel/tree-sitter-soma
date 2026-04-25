@@ -148,6 +148,7 @@ module.exports = grammar({
         $.instance_declaration,
         $.import_declaration,
         $.alias_declaration,
+        $.theorem_declaration,
       ),
     identifier: ($) => /[a-z_][a-zA-Z0-9_']*/,
     qualified_constructor_name: ($) =>
@@ -171,6 +172,23 @@ module.exports = grammar({
       seq(
         optional($.attribute),
         "def",
+        field("name", choice($.identifier, $.operator)),
+        repeat($.binder),
+        optional(seq($.colon, field("return_type", $.type))),
+        optional(
+          choice(
+            field("body", $.pattern_matching_body),
+            seq(
+              $.colon_equal,
+              field("body", choice($._expression, $._block_expression)),
+            ),
+          ),
+        ),
+      ),
+    theorem_declaration: ($) =>
+      seq(
+        optional($.attribute),
+        "theorem",
         field("name", choice($.identifier, $.operator)),
         repeat($.binder),
         optional(seq($.colon, field("return_type", $.type))),

@@ -15,6 +15,7 @@
   "use"
   "pub"
   "alias"
+  "theorem"
 ] @keyword
 
 (comment) @comment
